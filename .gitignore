@@ -1,0 +1,65 @@
+# IDEs and build tool specific files
+
+# Maven generated folders
+/target/
+
+# Gradle generated folders (useful if you ever switch or for multi-module projects)
+/build/
+
+# Maven Wrapper files (keep the scripts, ignore the jar itself)
+.mvn/wrapper/maven-wrapper.jar
+
+# Spring Boot specific
+# Exclude example or local configuration files to avoid committing sensitive info
+# These are for files that ARE NOT meant to be versioned (e.g., local overrides)
+# Your actual application.properties (in main and test) are NOT covered by these rules
+# and will be versioned, which is the correct behavior.
+/src/main/resources/*.properties.example
+/src/main/resources/*.yml.example
+/src/main/resources/application-local.properties # For specific local dev config
+/src/main/resources/application-dev.properties   # For development environment config
+/src/main/resources/application-prod.properties  # For production environment config
+
+# Log files (dynamic, should not be versioned)
+*.log
+logs/
+
+### IDE Specific Files ###
+# Eclipse / STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
+.vscode/
+
+# OS generated files (specific to your operating system)
+.DS_Store    # macOS
+Thumbs.db    # Windows
+
+# Misc files
+# HELP.md is generally versioned, so this line is commented out.
+# If you wish to ignore it, remove the '#'
+# HELP.md
+
+# Package files (compiled artifacts, should not be versioned)
+*.jar
+*.war
+*.ear
