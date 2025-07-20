@@ -65,4 +65,4 @@ Thumbs.db    # Windows
 *.ear
 
 # Uploaded files
-/uploads/
+/uploads/.DS_Store
