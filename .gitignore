@@ -63,3 +63,6 @@ Thumbs.db    # Windows
 *.jar
 *.war
 *.ear
+
+# Uploaded files
+/uploads/
