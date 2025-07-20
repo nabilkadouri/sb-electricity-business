@@ -32,7 +32,7 @@ public class TimeslotService {
         ChargingStation chargingStation = chargingStationRepository.findById(request.getChargingStationId())
                 .orElseThrow(() -> new RuntimeException("Borne de recharge non trouvée avec l'ID: " + request.getChargingStationId()));
 
-        Timeslot timeslot = timeslotMapper.toEntity(request);
+        Timeslot timeslot = timeslotMapper.convertToEntity(request);
         timeslot.setChargingStation(chargingStation);
 
         Timeslot newTimeslot = timeslotRepository.save(timeslot);

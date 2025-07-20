@@ -45,7 +45,7 @@ public class DataInitializer implements CommandLineRunner {
         //Fixture pour l'ajout de users
         User user1 = new User();
         user1.setEmail("user1@test.com");
-        user1.setPassword(passwordEncoder.encode("password123")); // Mot de passe crypté
+        user1.setPassword(passwordEncoder.encode("password123"));
         user1.setFirstName("Jean");
         user1.setName("Dupont");
         user1.setOwnsStation(false);
@@ -60,7 +60,7 @@ public class DataInitializer implements CommandLineRunner {
         user2.setPassword(passwordEncoder.encode("password123"));
         user2.setFirstName("Marie");
         user2.setName("Curie");
-        user2.setOwnsStation(true); // Propriétaire de station
+        user2.setOwnsStation(true);
         user2.setPhoneNumber("0698765432");
         user2.setAddress("456 Avenue des Champs");
         user2.setPostaleCode("69001");

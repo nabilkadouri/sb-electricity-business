@@ -1,9 +1,10 @@
 package com.hb.cda.electricitybusiness.model;
 
+import com.hb.cda.electricitybusiness.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.enums.ChargingStationStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,7 +23,7 @@ public class ChargingStation {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "station_name", length = 255, nullable = false)
+    @Column(name = "station_name", length = 255, nullable = false, unique = true)
     private String nameStation;
 
     @Column(name = "description")
@@ -34,8 +35,13 @@ public class ChargingStation {
     @Column(name = "price_per_hour", precision = 6, scale = 2, nullable = false)
     private BigDecimal pricePerHour;
 
-    @Column(name = "picture", length = 255)
-    private String picture;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "alt", column = @Column(name = "station_picture_alt", length = 255)),
+            @AttributeOverride(name = "src", column = @Column(name = "station_picture_src", length = 255)),
+            @AttributeOverride(name = "main", column = @Column(name = "station_picture_is_main"))
+    })
+    private PictureDetailsDTO picture;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -53,12 +59,15 @@ public class ChargingStation {
 
     @ManyToOne
     @JoinColumn(name = "location_station_id", nullable = false)
+    @ToString.Exclude
     private LocationStation locationStation;
 
     @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Timeslot> timeslots = new ArrayList<>();
 
     @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Booking> bookings = new ArrayList<>();
 
     public ChargingStation() {
@@ -66,10 +75,10 @@ public class ChargingStation {
         this.isAvailable = true;
         this.status = ChargingStationStatus.PENDING;
         this.plugType = "Type 2";
-        this.picture = "images/default_picture_station.png";
+        this.picture = new PictureDetailsDTO("Image par défaut de la borne de recharge", "images/default_picture_station.png", true);
     }
 
-    public void addTimeslot(Timeslot timeslot) {
+   public void addTimeslot(Timeslot timeslot) {
         if (timeslots == null) {
             timeslots = new ArrayList<>();
         }

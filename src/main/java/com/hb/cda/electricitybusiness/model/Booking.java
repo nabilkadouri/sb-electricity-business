@@ -47,19 +47,17 @@ public class Booking {
     @JoinColumn(name = "charging_station_id", nullable = false)
     private ChargingStation chargingStation;
 
-    public Booking(LocalDateTime startDate, LocalDateTime endDate, PaymentMethod paymentType) {
+    public Booking(LocalDateTime startDate, LocalDateTime endDate, PaymentMethod paymentType, BigDecimal totalAmount) {
         this.createdAt = LocalDateTime.now();
         this.status = BookingStatus.PENDING;
         this.startDate = startDate;
         this.endDate = endDate;
         this.paymentType = paymentType;
+        this.totalAmount = totalAmount;
     }
 
     public Booking() {
         this.createdAt = LocalDateTime.now();
         this.status = BookingStatus.PENDING;
     }
-
-
-
 }

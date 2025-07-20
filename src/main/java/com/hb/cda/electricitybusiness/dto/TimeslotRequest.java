@@ -1,16 +1,17 @@
 package com.hb.cda.electricitybusiness.dto;
 
+import com.hb.cda.electricitybusiness.enums.DayOfWeek;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.DayOfWeek;
+
 import java.time.LocalDateTime;
 
 @Data
 public class TimeslotRequest {
 
     @NotNull(message = "Le jour de la semaine est obligatoire")
-    private String dayOfWeek;
+    private DayOfWeek dayOfWeek;
 
     @NotNull(message = "L'heure de début est obligatoire")
     private LocalDateTime startTime;

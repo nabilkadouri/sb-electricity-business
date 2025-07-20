@@ -29,4 +29,5 @@ public class LocationStationRequest {
     private Double latitude;
 
     private Double longitude;
+
 }

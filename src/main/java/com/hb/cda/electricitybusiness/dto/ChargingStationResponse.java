@@ -1,5 +1,6 @@
 package com.hb.cda.electricitybusiness.dto;
 
+import com.hb.cda.electricitybusiness.enums.ChargingStationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,8 @@ public class ChargingStationResponse {
     private ChargingStationStatus status;
     private Boolean isAvailable;
     private String plugType;
+    private Long userId;
     private LocationStationResponse locationStation;
     private List<TimeslotResponse> timeslots;
+    private List<BookingResponse> bookings;
 }

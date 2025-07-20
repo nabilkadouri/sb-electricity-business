@@ -17,5 +17,5 @@ public class BookingResponse {
     private BigDecimal totalAmount;
     private BookingStatus status;
     private Long userId;
-    private ChargingStationResponse chargingStation;
+    private Long chargingStationId;
 }

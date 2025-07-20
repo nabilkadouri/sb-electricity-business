@@ -28,7 +28,7 @@ public class LocationStationController {
     }
 
     @GetMapping("/{id}")
-    public  ResponseEntity<LocationStationResponse> getLocationStationById(Long id) {
+    public  ResponseEntity<LocationStationResponse> getLocationStationById(@PathVariable Long id) {
         LocationStationResponse locationStation = locationStationService.getLocationStationById(id);
 
         return new ResponseEntity<>(locationStation, HttpStatus.OK);

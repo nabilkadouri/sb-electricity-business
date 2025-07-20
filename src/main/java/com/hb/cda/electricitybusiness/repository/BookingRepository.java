@@ -18,6 +18,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
 
     // Trouver les réservations pour une borne dans une plage de dates/heures donnée
-    List<Booking> findByChargingStationIdAndStartDateBetween(Long chargingStationId, LocalDateTime start, LocalDateTime end);
+    /*List<Booking> findByChargingStationIdAndStartDateBetween(Long chargingStationId, LocalDateTime start, LocalDateTime end);*/
 
 }

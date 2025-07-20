@@ -1,8 +1,10 @@
 package com.hb.cda.electricitybusiness.model;
 
+import com.hb.cda.electricitybusiness.dto.PictureDetailsDTO;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,8 +52,13 @@ public class User implements UserDetails {
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
-    @Column(name = "picture", length = 255)
-    private String picture = "images/default_avatar.png";;
+    @Embedded // Indique que PictureDetailsDTO est un type embarqué
+    @AttributeOverrides({ // Permet de renommer les colonnes dans la table 'users'
+            @AttributeOverride(name = "alt", column = @Column(name = "profile_picture_alt", length = 255)),
+            @AttributeOverride(name = "src", column = @Column(name = "profile_picture_src", length = 255)),
+            @AttributeOverride(name = "main", column = @Column(name = "profile_picture_is_main"))
+    })
+    private PictureDetailsDTO profilePicture;
 
     @Column(name = "code_check", length = 6)
     private String codeCheck;
@@ -63,10 +70,16 @@ public class User implements UserDetails {
     private String roles = "ROLE_USER";
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<ChargingStation> chargingStations = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Booking> bookings = new ArrayList<>();
+
+    {
+        this.profilePicture = new PictureDetailsDTO("Avatar par défaut de l'utilisateur", "images/default_avatar.png", true);
+    }
 
     public User(String name, String firstName, String email, String password, String address, String postaleCode, String city) {
         this.name = name;
@@ -78,7 +91,6 @@ public class User implements UserDetails {
         this.city = city;
         this.ownsStation = false;
         this.roles = "ROLE_USER";
-        this.picture = "images/default_avatar.png";
     }
 
     public User(Long id,String name, String firstName, String email, String password, String address, String postaleCode, String city) {
@@ -92,7 +104,6 @@ public class User implements UserDetails {
         this.city = city;
         this.ownsStation = false;
         this.roles = "ROLE_USER";
-        this.picture = "images/default_avatar.png";
     }
 
     @Override

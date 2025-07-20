@@ -13,7 +13,7 @@ public interface TimeslotMapper {
     @Mapping(target = "chargingStation", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "isAvailable", ignore = true)
-    Timeslot toEntity(TimeslotRequest request);
+    Timeslot convertToEntity(TimeslotRequest request);
 
     @Mapping(source = "chargingStation.id", target = "chargingStationId")
     TimeslotResponse toResponse(Timeslot timeslot);

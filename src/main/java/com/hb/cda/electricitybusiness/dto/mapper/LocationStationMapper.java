@@ -14,7 +14,7 @@ public interface LocationStationMapper {
 
     LocationStation convertToEntity(LocationStationRequest request);
 
-    @Mapping(target = "id", ignore = true) // L'ID n'est pas modifiable via la requête
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "chargingStations", ignore = true) // La liste de bornes n'est pas modifiée ici
     void updateEntityFromDto(LocationStationRequest request, @MappingTarget LocationStation locationStation);
 

@@ -3,7 +3,6 @@ package com.hb.cda.electricitybusiness.model;
 import com.hb.cda.electricitybusiness.enums.DayOfWeek;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
