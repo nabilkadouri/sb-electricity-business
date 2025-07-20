@@ -19,8 +19,8 @@ public class ChargingStationResponse {
     private String description;
     private BigDecimal power;
     private BigDecimal pricePerHour;
-    private String picture;
-    private String status;
+    private PictureDetailsDTO picture;
+    private ChargingStationStatus status;
     private Boolean isAvailable;
     private String plugType;
     private LocationStationResponse locationStation;

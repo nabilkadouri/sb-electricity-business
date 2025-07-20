@@ -22,14 +22,16 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService  implements UserDetailsService {
+    private final UploadService uploadService;
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,UserMapper userMapper) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, UploadService uploadService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
+        this.uploadService = uploadService;
     }
 
     @Override
@@ -56,7 +58,6 @@ public class UserService  implements UserDetailsService {
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setOwnsStation(false);
-        user.setPicture("images/default_avatar.png");
         user.setCodeCheck(null);
 
         return userRepository.save(user);
@@ -121,10 +122,22 @@ public class UserService  implements UserDetailsService {
 
     @Transactional
     public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
+
+        if (user.getProfilePicture() != null) {
+            String currentSrc = user.getProfilePicture().getSrc();
+            // Vérifie que l'image à supprimer n'est pas une image par défaut
+            if (currentSrc != null && !currentSrc.startsWith("images/default_")) {
+                uploadService.removeExisting(currentSrc);
+            }
+        }
+
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("Utilisateur non trouvé avec l'ID: " + id);
         }
         userRepository.deleteById(id);
+
     }
 
 }

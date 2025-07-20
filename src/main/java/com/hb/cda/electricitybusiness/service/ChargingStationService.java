@@ -2,7 +2,6 @@ package com.hb.cda.electricitybusiness.service;
 
 import com.hb.cda.electricitybusiness.dto.ChargingStationRequest;
 import com.hb.cda.electricitybusiness.dto.ChargingStationResponse;
-import com.hb.cda.electricitybusiness.dto.LocationStationResponse;
 import com.hb.cda.electricitybusiness.dto.mapper.ChargingStationMapper;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
 import com.hb.cda.electricitybusiness.model.LocationStation;
@@ -12,10 +11,7 @@ import com.hb.cda.electricitybusiness.repository.LocationStationRepository;
 import com.hb.cda.electricitybusiness.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
-import javax.xml.stream.Location;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,17 +21,19 @@ public class ChargingStationService {
     private ChargingStationMapper chargingStationMapper;
     private UserRepository userRepository;
     private LocationStationRepository locationStationRepository;
+    private UploadService uploadService;
 
-    public ChargingStationService(ChargingStationRepository chargingStationRepository, ChargingStationMapper chargingStationMapper, UserRepository userRepository, LocationStationRepository locationStationRepository) {
+    public ChargingStationService(ChargingStationRepository chargingStationRepository, ChargingStationMapper chargingStationMapper, UserRepository userRepository, LocationStationRepository locationStationRepository, UploadService uploadService) {
         this.chargingStationRepository = chargingStationRepository;
         this.chargingStationMapper = chargingStationMapper;
         this.userRepository = userRepository;
         this.locationStationRepository = locationStationRepository;
+        this.uploadService = uploadService;
     }
 
     @Transactional
     public ChargingStationResponse createChargingStation (ChargingStationRequest dto) {
-        //Convertir l'entité en dto
+        //Convertir le dto en entité
         ChargingStation chargingStation = chargingStationMapper.convertToEntity(dto);
 
         //Récupérer l'id du user
@@ -82,6 +80,17 @@ public class ChargingStationService {
 
     @Transactional
     public void deleteChargingStation(Long id) {
+        ChargingStation chargingStation = chargingStationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Borne non trouvé avec l'ID: " + id));
+
+        if (chargingStation.getPicture() != null) {
+            String currentSrc = chargingStation.getPicture().getSrc();
+
+            if (currentSrc != null && !currentSrc.startsWith("images/default_")) {
+                uploadService.removeExisting(currentSrc);
+            }
+        }
+
         if(!chargingStationRepository.existsById(id)) {
             throw  new RuntimeException("Borne non trouvé avec l'ID: " + id);
         }

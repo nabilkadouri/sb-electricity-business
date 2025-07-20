@@ -22,7 +22,7 @@ public class UserResponse {
     private Double longitude;
     private String phoneNumber;
     private Boolean ownsStation;
-    private String picture;
+    private PictureDetailsDTO profilePicture;
     private String role;
     private List<BookingResponse> bookings;
     private List<ChargingStationResponse> chargingStations;
