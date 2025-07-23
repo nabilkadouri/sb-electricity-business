@@ -1,21 +1,20 @@
 package com.hb.cda.electricitybusiness.service;
 
-import com.hb.cda.electricitybusiness.service.util.EmailService;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmailServiceImpl implements EmailService {
+public class AuthService{
 
     private JavaMailSender javaMailSender;
 
-    public EmailServiceImpl(JavaMailSender javaMailSender) {
+    public AuthService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 
-    @Override
+
     public void sendVerificationCode(String toEmail, String code) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
 
