@@ -69,7 +69,7 @@ public class User implements UserDetails {
     @Column(name = "roles", nullable = false)
     private String roles = "ROLE_USER";
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<ChargingStation> chargingStations = new ArrayList<>();
 

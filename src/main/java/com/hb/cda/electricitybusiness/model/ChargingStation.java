@@ -62,7 +62,7 @@ public class ChargingStation {
     @ToString.Exclude
     private LocationStation locationStation;
 
-    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Timeslot> timeslots = new ArrayList<>();
 
@@ -75,7 +75,7 @@ public class ChargingStation {
         this.isAvailable = true;
         this.status = ChargingStationStatus.PENDING;
         this.plugType = "Type 2";
-        this.picture = new PictureDetailsDTO("Image par défaut de la borne de recharge", "images/default_picture_station.png", true);
+        this.picture = new PictureDetailsDTO("Borne de recharge", "images/default_picture_station.png", true);
     }
 
    public void addTimeslot(Timeslot timeslot) {
