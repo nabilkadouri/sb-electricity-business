@@ -30,5 +30,4 @@ public class ChargingStationRequest {
     private Long locationStationId;
     @NotNull(message = "L'ID du propriétaire est obligatoire")
     private Long userId;
-
 }

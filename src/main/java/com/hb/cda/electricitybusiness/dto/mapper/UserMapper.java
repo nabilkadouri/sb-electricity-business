@@ -27,7 +27,7 @@ public interface UserMapper {
     @Mapping(target = "chargingStations", ignore = true)
     @Mapping(target = "bookings", ignore = true)
     @Mapping(target = "password", ignore = true)
-    void updateUserFromRequest(UserUpdateRequest userUpdateRequest, @MappingTarget User user);
+    User updateUserFromRequest(UserUpdateRequest userUpdateRequest, @MappingTarget User user);
 
     // --- Nouvelle méthode pour mapper PictureDetailsDTO en incluant l'URL de base ---
     default PictureDetailsDTO mapPictureDetailsToFullUrl(PictureDetailsDTO pictureDetails) {

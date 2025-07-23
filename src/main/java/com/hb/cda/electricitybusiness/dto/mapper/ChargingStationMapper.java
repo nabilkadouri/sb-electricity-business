@@ -42,21 +42,30 @@ public interface ChargingStationMapper {
         }
 
         String src = pictureDetails.getSrc();
+        String alt = pictureDetails.getAlt();
         String fullSrc;
 
-
-        if (src != null && src.startsWith("images/default_")) {
-            fullSrc = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/images/")
-                    .path(src.substring(src.lastIndexOf('/') + 1))
-                    .toUriString();
-        } else {
-            fullSrc = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/uploads/")
-                    .path(src)
-                    .toUriString();
+        if (alt != null) {
+            alt = alt.replace("\"", "");
         }
 
-        return new PictureDetailsDTO(pictureDetails.getAlt(), fullSrc, pictureDetails.isMain());
+        if (src != null) {
+            if (src.startsWith("images/default_")) {
+                fullSrc = ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/images/")
+                        .path(src.substring(src.lastIndexOf('/') + 1))
+                        .toUriString();
+            } else {
+
+                fullSrc = ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/uploads/thumbnail-")
+                        .path(src)
+                        .toUriString();
+            }
+        } else {
+            fullSrc = null;
+        }
+
+        return new PictureDetailsDTO(alt, fullSrc, pictureDetails.isMain());
     }
 }

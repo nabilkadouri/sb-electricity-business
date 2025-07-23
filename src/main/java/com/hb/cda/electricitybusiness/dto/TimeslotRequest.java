@@ -2,12 +2,14 @@ package com.hb.cda.electricitybusiness.dto;
 
 import com.hb.cda.electricitybusiness.enums.DayOfWeek;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class TimeslotRequest {
 
     @NotNull(message = "Le jour de la semaine est obligatoire")
@@ -19,7 +21,6 @@ public class TimeslotRequest {
     @NotNull(message = "L'heure de fin est obligatoire")
     private LocalDateTime endTime;
 
-    @NotNull(message = "L'ID de la borne de recharge est obligatoire")
     private Long chargingStationId;
 
 }

@@ -13,6 +13,4 @@ public class PictureDetailsDTO {
     private String alt;
     private String src;
     private boolean main;
-
-
 }

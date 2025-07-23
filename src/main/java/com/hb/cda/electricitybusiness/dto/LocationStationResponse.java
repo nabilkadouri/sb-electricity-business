@@ -16,5 +16,4 @@ public class LocationStationResponse {
     private String city;
     private Double latitude;
     private Double longitude;
-    //private List<ChargingstationResponse> chargingStations;
 }
