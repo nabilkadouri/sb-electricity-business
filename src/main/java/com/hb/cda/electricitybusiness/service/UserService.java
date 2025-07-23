@@ -1,5 +1,6 @@
 package com.hb.cda.electricitybusiness.service;
 
+import com.hb.cda.electricitybusiness.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.dto.UserEmailUpdateDto;
 import com.hb.cda.electricitybusiness.dto.UserResponse;
 import com.hb.cda.electricitybusiness.dto.UserUpdateRequest;
@@ -10,11 +11,14 @@ import com.hb.cda.electricitybusiness.security.dto.auth.RegisterRequest;
 
 import jakarta.transaction.Transactional;
 import org.hibernate.sql.Update;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +43,13 @@ public class UserService  implements UserDetailsService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec email: " + email));
     }
+
+    public UserResponse getAuthenticatedUserResponse(String email) {
+        User user = (User) loadUserByUsername(email);
+        return userMapper.userToUserResponse(user);
+    }
+
+
 
     @Transactional
     public User registerUser(RegisterRequest dto) {
@@ -118,6 +129,35 @@ public class UserService  implements UserDetailsService {
 
         User updatedUser = userRepository.save(existingUser);
         return userMapper.userToUserResponse(updatedUser);
+    }
+
+    @Transactional
+    public String uploadProfilePicture(Long id, MultipartFile file, String altText, boolean isMain) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID " + id));
+
+        //Supprimer ancienne image, sauf si c'est celle par défaut
+        if(user.getProfilePicture() != null && !user.getProfilePicture().getSrc().startsWith("images/default_")) {
+            String currentSrc = user.getProfilePicture().getSrc();
+            uploadService.removeExisting(currentSrc);
+        }
+
+        //Upload de la nouvelle image
+        String newFileName = uploadService.uploadImage(file);
+
+        //Mise à jour de l'entité user
+        PictureDetailsDTO newPictureDetails = new PictureDetailsDTO(altText, newFileName, isMain);
+        user.setProfilePicture(newPictureDetails);
+        userRepository.save(user);
+
+        // Construction de l'url pour la réponse
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/uploads/")
+                .path(newFileName)
+                .toUriString();
+
+        return fileDownloadUri;
     }
 
     @Transactional

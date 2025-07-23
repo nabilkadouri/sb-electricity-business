@@ -1,12 +1,12 @@
 package com.hb.cda.electricitybusiness.controller;
 
+import com.hb.cda.electricitybusiness.dto.UserResponse;
 import com.hb.cda.electricitybusiness.model.User;
 import com.hb.cda.electricitybusiness.repository.UserRepository;
 import com.hb.cda.electricitybusiness.security.JwtUtil;
-import com.hb.cda.electricitybusiness.security.dto.auth.CodeCheckRequest;
-import com.hb.cda.electricitybusiness.security.dto.auth.LoginRequest;
-import com.hb.cda.electricitybusiness.security.dto.auth.LoginResponse;
-import com.hb.cda.electricitybusiness.service.util.EmailService;
+import com.hb.cda.electricitybusiness.security.dto.auth.*;
+import com.hb.cda.electricitybusiness.service.AuthService;
+import com.hb.cda.electricitybusiness.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,18 +29,26 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
     private JwtUtil jwtUtil;
     private UserRepository userRepository;
-    private EmailService emailService;
+    private AuthService authService;
+    private UserService userService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository, EmailService emailService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository, AuthService authService,UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
-        this.emailService = emailService;
+        this.authService = authService;
+        this.userService = userService;
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody RegisterRequest request) {
+        User newUser = userService.registerUser(request);
+        UserResponse userResponse = userService.getUserResponse(newUser);
+        return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticateUser (@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<MessageResponse> authenticateUser (@Valid @RequestBody LoginRequest loginRequest) {
         try {
             //Tenter l'authentification
             Authentication authentication = authenticationManager.authenticate(
@@ -60,13 +68,13 @@ public class AuthController {
             user.setCodeCheck(codeVerification);
             userRepository.save(user);
             //Envoyer le code de verification par email
-            emailService.sendVerificationCode(user.getEmail(), codeVerification);
+            authService.sendVerificationCode(user.getEmail(), codeVerification);
 
             // Informer le client de la prochaine étape.
-            return ResponseEntity.ok("Code de vérification envoyé à votre email. Veuillez le vérifier sur /api/auth/login/check");
+            return ResponseEntity.ok(new MessageResponse("Code de vérification envoyé à votre email. Veuillez le vérifier sur /api/auth/login/check"));
 
         } catch (AuthenticationException e) {
-            return new ResponseEntity<>("Identifiants invalides", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new MessageResponse("Identifiants invalides"), HttpStatus.UNAUTHORIZED);
         }
 
     }
@@ -99,7 +107,9 @@ public class AuthController {
             return ResponseEntity.ok(new LoginResponse(accessToken, refreshToken));
 
         } catch (AuthenticationException e) {
-            return new ResponseEntity<>("Erreur lors de la génération du token: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new MessageResponse("Erreur lors de la génération du token: " + e.getMessage()), HttpStatus.UNAUTHORIZED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(new MessageResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 }

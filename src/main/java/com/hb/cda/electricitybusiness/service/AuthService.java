@@ -32,4 +32,6 @@ public class AuthService{
             System.err.println("Erreur lors de l'envoi de l'e-mail de vérification à " + toEmail + " : " + e.getMessage());
         }
     }
+
+
 }

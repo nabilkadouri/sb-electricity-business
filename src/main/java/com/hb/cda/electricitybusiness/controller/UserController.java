@@ -12,22 +12,21 @@ import com.hb.cda.electricitybusiness.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
-    private UserRepository userRepository;
     private UserService userService;
     private UploadService uploadService;
 
-    public UserController(UserRepository userRepository, UserService userService, UploadService uploadService) {
-        this.userRepository = userRepository;
+    public UserController( UserService userService, UploadService uploadService) {
         this.userService = userService;
         this.uploadService = uploadService;
     }
@@ -44,52 +43,27 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody RegisterRequest request) {
-        User newUser = userService.registerUser(request);
-        UserResponse userResponse = userService.getUserResponse(newUser);
-        return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponse> getConnectedUser(Principal connectedUserPrincipal) {
+        UserResponse userResponse = userService.getAuthenticatedUserResponse(connectedUserPrincipal.getName());
+
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
+
 
     @PostMapping("/{userId}/uploadProfilePicture")
     public ResponseEntity<String> uploadProfilePicture(
             @PathVariable Long userId,
-            @RequestParam("file") MultipartFile file, // Le fichier envoyé dans la requête
-            @RequestParam(value = "alt", required = false) String altText, // Texte alternatif (optionnel)
-            @RequestParam(value = "isMain", defaultValue = "true") boolean isMain // Image principale (par défaut true)
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "alt", required = false) String altText,
+            @RequestParam(value = "isMain", defaultValue = "true") boolean isMain
     ) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID " + userId));
 
-        // LOGIQUE DE SUPPRESSION DE L'ANCIENNE IMAGE :
-        // Vérifie si l'utilisateur avait déjà une image (qui n'est pas une image par défaut)
-        if (user.getProfilePicture() != null) {
-            String currentSrc = user.getProfilePicture().getSrc();
-            // Si l'image n'est pas une image par défaut (qui sont stockées dans /static/images/)
-            if (currentSrc != null && !currentSrc.startsWith("images/default_")) {
-                uploadService.removeExisting(currentSrc); // Supprime l'ancienne image et sa miniature
-            }
-        }
+        String fileDownloadUri = userService.uploadProfilePicture(userId, file, altText, isMain);
 
-        // LOGIQUE D'UPLOAD DE LA NOUVELLE IMAGE :
-        // Appelle le service d'upload pour sauvegarder la nouvelle image
-        String newFileName = uploadService.uploadImage(file); // Retourne le nom de fichier unique
-
-        // MISE À JOUR DE L'ENTITÉ USER :
-        // Crée un nouvel objet PictureDetailsDTO avec les infos de la nouvelle image
-        // Note : le 'src' stocke le NOM DU FICHIER UNIQUE, pas l'URL complète
-        PictureDetailsDTO newPictureDetails = new PictureDetailsDTO(altText, newFileName, isMain);
-        user.setProfilePicture(newPictureDetails);
-        userRepository.save(user); // Sauvegarde l'utilisateur mis à jour dans la base de données
-
-        // CONSTRUCTION DE L'URL POUR LA RÉPONSE :
-        // Crée l'URL complète pour que le client sache où accéder à la nouvelle image
-        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/uploads/") // Chemin exposé par WebConfig
-                .path(newFileName) // Le nom du fichier
-                .toUriString();
-
-        return ResponseEntity.ok("Photo de profil uploadée avec succès pour l'utilisateur " + userId + ". URL: " + fileDownloadUri);
+        return new ResponseEntity<>(fileDownloadUri, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")

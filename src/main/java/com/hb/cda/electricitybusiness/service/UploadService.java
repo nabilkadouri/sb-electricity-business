@@ -62,7 +62,7 @@ public class UploadService {
         } catch (IllegalStateException | IOException e) {
             throw new RuntimeException("Erreur lors du transfert vers le dossier d'upload " + uploadFolderPath, e);
         }
-        return filename; // Retourne le nom unique du fichier
+        return filename;
     }
 
     public void removeExisting(String filename) {
