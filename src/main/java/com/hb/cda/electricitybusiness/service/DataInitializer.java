@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -117,17 +118,15 @@ public class DataInitializer implements CommandLineRunner {
         //Timeslots
         Timeslot timeslot1 = new Timeslot();
         timeslot1.setDayOfWeek(DayOfWeek.MONDAY);
-        timeslot1.setStartTime(LocalDateTime.now().withHour(9).withMinute(0).withSecond(0));
-        timeslot1.setEndTime(LocalDateTime.now().withHour(10).withMinute(0).withSecond(0));
-        timeslot1.setIsAvailable(true);
+        timeslot1.setStartTime(LocalTime.now().withHour(9).withMinute(0).withSecond(0));
+        timeslot1.setEndTime(LocalTime.now().withHour(10).withMinute(0).withSecond(0));
         timeslot1.setChargingStation(station1);
         timeslotRepository.save(timeslot1);
 
         Timeslot timeslot2 = new Timeslot();
         timeslot2.setDayOfWeek(DayOfWeek.MONDAY);
-        timeslot2.setStartTime(LocalDateTime.now().withHour(10).withMinute(0).withSecond(0));
-        timeslot2.setEndTime(LocalDateTime.now().withHour(11).withMinute(0).withSecond(0));
-        timeslot2.setIsAvailable(true);
+        timeslot2.setStartTime(LocalTime.now().withHour(10).withMinute(0).withSecond(0));
+        timeslot2.setEndTime(LocalTime.now().withHour(11).withMinute(0).withSecond(0));
         timeslot2.setChargingStation(station1);
         timeslotRepository.save(timeslot2);
 

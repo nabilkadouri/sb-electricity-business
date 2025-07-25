@@ -17,12 +17,10 @@ public interface TimeslotMapper {
 
     @Mapping(target = "chargingStation", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "isAvailable", constant = "true")
     Timeslot convertToEntity(TimeslotRequest request);
 
     @Mapping(target = "chargingStation", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "isAvailable", ignore = true)
     void updateEntityFromRequest(TimeslotRequest request, @MappingTarget Timeslot timeslot);
 
     List<Timeslot> convertToEntityList(List<TimeslotRequest> timeslots);

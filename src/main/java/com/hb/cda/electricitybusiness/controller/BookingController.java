@@ -2,7 +2,7 @@ package com.hb.cda.electricitybusiness.controller;
 
 import com.hb.cda.electricitybusiness.dto.BookingRequest;
 import com.hb.cda.electricitybusiness.dto.BookingResponse;
-import com.hb.cda.electricitybusiness.service.BookingService;
+import com.hb.cda.electricitybusiness.business.impl.BookingBusinessImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +14,9 @@ import java.util.List;
 @RequestMapping(value = "/api/bookings")
 public class BookingController {
 
-    private BookingService bookingService;
+    private BookingBusinessImpl bookingService;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(BookingBusinessImpl bookingService) {
         this.bookingService = bookingService;
     }
 

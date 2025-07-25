@@ -4,7 +4,7 @@ import com.hb.cda.electricitybusiness.enums.DayOfWeek;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @Entity
@@ -21,19 +21,13 @@ public class Timeslot {
     private DayOfWeek dayOfWeek;
 
     @Column(name = "start_time", nullable = false)
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @Column(name = "end_time", nullable = false)
-    private LocalDateTime endTime;
-
-    @Column(name = "is_available", nullable = false)
-    private Boolean isAvailable;
+    private LocalTime endTime;
 
     @ManyToOne
     @JoinColumn(name = "charging_station_id", nullable = false)
     private ChargingStation chargingStation;
 
-    public Timeslot() {
-        this.isAvailable = true;
-    }
 }

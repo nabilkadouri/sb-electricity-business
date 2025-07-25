@@ -70,6 +70,8 @@ public class UserService  implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setOwnsStation(false);
         user.setCodeCheck(null);
+        user.setLatitude(dto.getLatitude());
+        user.setLongitude(dto.getLongitude());
 
         return userRepository.save(user);
     }

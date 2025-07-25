@@ -15,8 +15,6 @@ public interface TimeslotBusiness {
 
     TimeslotResponse getTimeslotById(Long id) throws BusinessException;
 
-    List<TimeslotResponse> getAvailableTimeslotsByChargingStation(Long chargingStationId);
-
     TimeslotResponse updateTimeslot(Long id, TimeslotRequest request) throws BusinessException;
 
     void deleteTimeslot(Long id) throws BusinessException;

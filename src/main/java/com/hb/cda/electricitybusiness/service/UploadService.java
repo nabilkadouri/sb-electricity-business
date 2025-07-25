@@ -80,8 +80,8 @@ public class UploadService {
 
     public void createThumbnail(MultipartFile file, String filename) throws IOException {
         Thumbnails.of(file.getInputStream())
-                .crop(Positions.CENTER) // Centre l'image avant de la redimensionner
-                .size(300, 300)      // Taille de la miniature
+                .crop(Positions.CENTER)
+                .size(200, 200)
                 .toFile(uploadFolderPath.resolve("thumbnail-" + filename).toFile());
     }
 

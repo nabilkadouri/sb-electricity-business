@@ -29,13 +29,13 @@ public class TimeslotBusinessImpl implements TimeslotBusiness {
     @Override
     public List<TimeslotResponse> createMultipleTimeslots(List<TimeslotRequest> timeslotRequests) throws BusinessException {
         if(timeslotRequests == null || timeslotRequests.isEmpty()) {
-            throw new BusinessException("La liste des crénaux ne peut pas être vide.");
+            throw new BusinessException("La liste des créneaux ne peut pas être vide.");
         }
 
         List<Timeslot> timeslotsToSave = timeslotRequests.stream()
                 .map(requestDto -> {
                     ChargingStation chargingStation = chargingStationRepository.findById(requestDto.getChargingStationId())
-                            .orElseThrow(() -> new BusinessException("Borne de recharge non tourvé avec l'id: " + requestDto.getChargingStationId()));
+                            .orElseThrow(() -> new BusinessException("Borne de recharge non trouvé avec l'id: " + requestDto.getChargingStationId()));
                     Timeslot timeslot = timeslotMapper.convertToEntity(requestDto);
                     timeslot.setChargingStation(chargingStation);
 
@@ -47,7 +47,6 @@ public class TimeslotBusinessImpl implements TimeslotBusiness {
 
         return timeslotMapper.toResponseList(savedTimeslots);
     }
-
 
     @Override
     public TimeslotResponse createTimeslot(TimeslotRequest request) throws BusinessException {
@@ -76,12 +75,6 @@ public class TimeslotBusinessImpl implements TimeslotBusiness {
         return timeslotMapper.toResponse(timeslot);
     }
 
-    @Override
-    public List<TimeslotResponse> getAvailableTimeslotsByChargingStation(Long chargingStationId) {
-        return timeslotRepository.findByChargingStationIdAndIsAvailableTrue(chargingStationId).stream()
-                .map(timeslotMapper::toResponse)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public TimeslotResponse updateTimeslot(Long id, TimeslotRequest request) throws BusinessException {

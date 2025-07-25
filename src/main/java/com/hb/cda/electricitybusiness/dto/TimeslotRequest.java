@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
@@ -16,10 +16,10 @@ public class TimeslotRequest {
     private DayOfWeek dayOfWeek;
 
     @NotNull(message = "L'heure de début est obligatoire")
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @NotNull(message = "L'heure de fin est obligatoire")
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     private Long chargingStationId;
 

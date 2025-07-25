@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
@@ -13,9 +13,8 @@ import java.time.LocalDateTime;
 public class TimeslotResponse {
     private Long id;
     private DayOfWeek dayOfWeek;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private Boolean isAvailable;
+    private LocalTime startTime;
+    private LocalTime endTime;
     private Long chargingStationId;
 
 }

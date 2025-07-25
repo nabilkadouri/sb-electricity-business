@@ -66,7 +66,7 @@ public class ChargingStation {
     @ToString.Exclude
     private List<Timeslot> timeslots = new ArrayList<>();
 
-    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Booking> bookings = new ArrayList<>();
 

@@ -14,8 +14,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public interface UserMapper {
 
     @Mapping(target = "role", source = "roles")
-    @Mapping(target = "latitude", ignore = true)
-    @Mapping(target = "longitude", ignore = true)
     @Mapping(target = "profilePicture", expression = "java(mapPictureDetailsToFullUrl(user.getProfilePicture()))")
     UserResponse userToUserResponse(User user);
 

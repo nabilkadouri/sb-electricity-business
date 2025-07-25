@@ -100,7 +100,7 @@ public class UserServiceTest {
     @Test
     void testRegister_success() {
         //Préparer les infos du nouvel utilisateur
-        RegisterRequest registerRequest = new RegisterRequest("dupuis@gmail.com","password123", "Dupuis", "Marc", "92 rue du test", "69800", "St priest", "0605020301");
+        RegisterRequest registerRequest = new RegisterRequest("dupuis@gmail.com","password123", "Dupuis", "Marc", "92 rue du test", "69800", "St priest", null,null,null);
 
         //Indiquer que ce mail n'est pas existant
         when(userRepository.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
@@ -148,7 +148,7 @@ public class UserServiceTest {
     void testRegisterUser_emailAlreadyExists() {
         RegisterRequest registerRequest = new RegisterRequest(
                 "existing@email.com", "John", "Doe", "password123",
-                "123 Main St", "12345", "Cityville", "555-1234");
+                "123 Main St", "12345", "CityVille", null, null, "555-1234");
 
         // On dit au faux userRepository que cet email est DÉJÀ pris.
         when(userRepository.findByEmail(registerRequest.getEmail())).thenReturn(Optional.of(new User()));

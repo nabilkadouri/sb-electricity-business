@@ -39,6 +39,8 @@ public class Booking {
     @Column(name = "payment_type")
     private PaymentMethod paymentType;
 
+
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

@@ -7,6 +7,5 @@ import java.util.List;
 
 
 public interface TimeslotRepository extends JpaRepository<Timeslot, Long> {
-    List<Timeslot> findByChargingStationId(Long chargingStationId);
-    List<Timeslot> findByChargingStationIdAndIsAvailableTrue(Long chargingStationId);
+
 }

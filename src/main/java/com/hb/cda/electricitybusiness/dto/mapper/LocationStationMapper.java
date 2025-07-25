@@ -10,12 +10,17 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface LocationStationMapper {
+
+
     LocationStationResponse toResponse(LocationStation locationStation);
 
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "chargingStations", ignore = true)
     LocationStation convertToEntity(LocationStationRequest request);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "chargingStations", ignore = true) // La liste de bornes n'est pas modifiée ici
+    @Mapping(target = "chargingStations", ignore = true)
     void updateEntityFromDto(LocationStationRequest request, @MappingTarget LocationStation locationStation);
 
 }

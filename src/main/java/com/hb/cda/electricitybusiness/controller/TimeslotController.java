@@ -37,11 +37,6 @@ public class TimeslotController {
         }
     }
 
-    @GetMapping("/by-charging-station/{chargingStationId}/available")
-    public ResponseEntity<List<TimeslotResponse>> getAvailableTimeslotsByChargingStation(@PathVariable Long chargingStationId) {
-        List<TimeslotResponse> timeslots = timeslotBusiness.getAvailableTimeslotsByChargingStation(chargingStationId);
-        return new ResponseEntity<>(timeslots, HttpStatus.OK);
-    }
 
     @PostMapping
     public ResponseEntity<TimeslotResponse> createTimeslot(@Valid @RequestBody TimeslotRequest request) {
