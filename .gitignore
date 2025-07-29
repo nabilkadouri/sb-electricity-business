@@ -24,6 +24,9 @@
 *.log
 logs/
 
+# Env file
+src/main/resources/env.properties
+
 ### IDE Specific Files ###
 # Eclipse / STS
 .apt_generated
@@ -69,3 +72,4 @@ Thumbs.db    # Windows
 # Application generated files (should not be versioned)
 uploads/
 
+src/main/resources/.env
