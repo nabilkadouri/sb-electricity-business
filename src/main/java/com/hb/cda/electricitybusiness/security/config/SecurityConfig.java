@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.security;
+package com.hb.cda.electricitybusiness.security.config;
 
 
 import com.hb.cda.electricitybusiness.security.jwt.JwtRequestFilter;
@@ -44,7 +44,6 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((req) -> req
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/icons/**").permitAll()
@@ -80,10 +79,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    AuthenticationManager getManager() throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
+
 
 
 }

@@ -1,9 +1,6 @@
-package com.hb.cda.electricitybusiness.service;
+package com.hb.cda.electricitybusiness.security.service;
 
 
-import com.hb.cda.electricitybusiness.dto.UserResponse;
-import com.hb.cda.electricitybusiness.controller.dto.mapper.UserMapper;
-import com.hb.cda.electricitybusiness.model.User;
 import com.hb.cda.electricitybusiness.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

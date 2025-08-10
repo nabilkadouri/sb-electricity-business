@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.security;
+package com.hb.cda.electricitybusiness.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-@Component // Indique que cette classe est un composant Spring et peut être injectée
+@Component
 public class JwtUtil {
 
     // La clé secrète pour signer les tokens, lue depuis les propriétés de l'application (ex: application.properties)
@@ -31,7 +31,23 @@ public class JwtUtil {
     private long REFRESH_EXPIRATION_TIME;
 
     /**
-     * Extrait le nom d'utilisateur (sujet) du token JWT.
+     * Retourne la durée de validité du token d'accès en millisecondes.
+     * @return La durée d'expiration du token d'accès.
+     */
+    public long getExpirationTime() {
+        return EXPIRATION_TIME;
+    }
+
+    /**
+     * Retourne la durée de validité du refresh token en millisecondes.
+     * @return La durée d'expiration du refresh token.
+     */
+    public long getRefreshExpirationTime() {
+        return REFRESH_EXPIRATION_TIME;
+    }
+
+    /**
+     * Utilise la methode générique extractClaim pour récupérer le sujet du token qui est l'email de l'utilisateur.
      * @param token Le token JWT.
      * @return Le nom d'utilisateur (email) extrait.
      */
@@ -48,8 +64,9 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 
+
     /**
-     * Extrait une revendication spécifique du token JWT.
+     * Méthode générique qui utilise une fonction lambda (claimsResolver) pour extraire n'importe quelle information (claim) du corps du token afin d'éviter la duplication de code.
      * @param token Le token JWT.
      * @param claimsResolver Une fonction pour résoudre la revendication.
      * @param <T> Le type de la revendication.
@@ -60,8 +77,9 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
+
     /**
-     * Extrait toutes les revendications (claims) du token JWT.
+     * Méthode de base qui analyse le token JWT. Elle décode le token, le valide avec la clé secrète (getSigningKey()) et retourne l'ensemble des revendications (claims) qu'il contient.
      * @param token Le token JWT.
      * @return Toutes les revendications.
      */
@@ -109,9 +127,9 @@ public class JwtUtil {
     /**
      * Crée le token JWT avec les revendications, le sujet et la durée d'expiration spécifiée.
      * Cette méthode est réutilisée pour les tokens d'accès et les refresh tokens.
-     * @param claims Les revendications personnalisées.
-     * @param subject Le sujet du token (généralement le nom d'utilisateur/email).
-     * @param expirationTime La durée de validité du token en millisecondes.
+     * @param claims Les données de revendication.
+     * @param subject Le sujet du token, ici l'email de l'utilisateur.
+     * @param expirationTime La durée de validité du token.
      * @return Le token JWT.
      */
     private String createToken(Map<String, Object> claims, String subject, long expirationTime) {
@@ -125,7 +143,7 @@ public class JwtUtil {
     }
 
     /**
-     * Valide un token JWT (access ou refresh).
+     * Méthode qui effectue deux vérifications : elle s'assure que le nom d'utilisateur extrait du token correspond bien à celui des UserDetails, et elle vérifie que le token n'est pas expiré.
      * @param token Le token JWT à valider.
      * @param userDetails Les détails de l'utilisateur à comparer.
      * @return true si le token est valide pour l'utilisateur et non expiré, false sinon.
