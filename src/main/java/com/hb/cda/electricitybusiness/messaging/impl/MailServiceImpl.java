@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.service;
+package com.hb.cda.electricitybusiness.messaging;
 
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -6,11 +6,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService{
+public class MailService {
 
     private JavaMailSender javaMailSender;
 
-    public AuthService(JavaMailSender javaMailSender) {
+    public MailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 
@@ -32,6 +32,8 @@ public class AuthService{
             System.err.println("Erreur lors de l'envoi de l'e-mail de vérification à " + toEmail + " : " + e.getMessage());
         }
     }
+
+    
 
 
 }

@@ -27,7 +27,7 @@ public interface UserMapper {
     @Mapping(target = "password", ignore = true)
     User updateUserFromRequest(UserUpdateRequest userUpdateRequest, @MappingTarget User user);
 
-    // --- Nouvelle méthode pour mapper PictureDetailsDTO en incluant l'URL de base ---
+    // --- Méthode pour mapper PictureDetailsDTO en incluant l'URL de base ---
     default PictureDetailsDTO mapPictureDetailsToFullUrl(PictureDetailsDTO pictureDetails) {
         if (pictureDetails == null) {
             return null;

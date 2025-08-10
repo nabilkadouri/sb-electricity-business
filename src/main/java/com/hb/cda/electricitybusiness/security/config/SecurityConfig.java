@@ -1,6 +1,7 @@
 package com.hb.cda.electricitybusiness.security;
 
-import jakarta.servlet.http.HttpServletRequest;
+
+import com.hb.cda.electricitybusiness.security.jwt.JwtRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +21,14 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private AuthenticationConfiguration authenticationConfiguration;
+    private JwtRequestFilter jwtRequestFilter;
+
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtRequestFilter jwtRequestFilter) {
+        this.authenticationConfiguration = authenticationConfiguration;
+        this.jwtRequestFilter = jwtRequestFilter;
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -70,5 +79,11 @@ public class SecurityConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    AuthenticationManager getManager() throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
 
 }

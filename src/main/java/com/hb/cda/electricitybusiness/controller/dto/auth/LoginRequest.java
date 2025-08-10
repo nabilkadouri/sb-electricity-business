@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.security.dto.auth;
+package com.hb.cda.electricitybusiness.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
