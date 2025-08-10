@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.dto;
+package com.hb.cda.electricitybusiness.controller.dto;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;

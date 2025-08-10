@@ -1,8 +1,8 @@
 package com.hb.cda.electricitybusiness.business;
 
 import com.hb.cda.electricitybusiness.business.exception.BusinessException;
-import com.hb.cda.electricitybusiness.dto.TimeslotRequest;
-import com.hb.cda.electricitybusiness.dto.TimeslotResponse;
+import com.hb.cda.electricitybusiness.controller.dto.TimeslotRequest;
+import com.hb.cda.electricitybusiness.controller.dto.TimeslotResponse;
 
 import java.util.List;
 

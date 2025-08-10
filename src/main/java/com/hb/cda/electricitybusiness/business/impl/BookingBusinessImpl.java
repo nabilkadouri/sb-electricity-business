@@ -2,9 +2,9 @@ package com.hb.cda.electricitybusiness.business.impl;
 
 import com.hb.cda.electricitybusiness.business.BookingBusiness;
 import com.hb.cda.electricitybusiness.business.exception.BusinessException;
-import com.hb.cda.electricitybusiness.dto.BookingRequest;
-import com.hb.cda.electricitybusiness.dto.BookingResponse;
-import com.hb.cda.electricitybusiness.dto.mapper.BookingMapper;
+import com.hb.cda.electricitybusiness.controller.dto.BookingRequest;
+import com.hb.cda.electricitybusiness.controller.dto.BookingResponse;
+import com.hb.cda.electricitybusiness.controller.dto.mapper.BookingMapper;
 import com.hb.cda.electricitybusiness.model.Booking;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
 import com.hb.cda.electricitybusiness.model.Timeslot;

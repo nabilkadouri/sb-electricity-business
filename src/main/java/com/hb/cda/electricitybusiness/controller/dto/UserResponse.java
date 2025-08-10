@@ -1,9 +1,8 @@
-package com.hb.cda.electricitybusiness.dto;
+package com.hb.cda.electricitybusiness.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.servlet.handler.UserRoleAuthorizationInterceptor;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
-package com.hb.cda.electricitybusiness.dto.mapper;
+package com.hb.cda.electricitybusiness.controller.dto.mapper;
 
-import com.hb.cda.electricitybusiness.dto.BookingRequest;
-import com.hb.cda.electricitybusiness.dto.BookingResponse;
+import com.hb.cda.electricitybusiness.controller.dto.BookingRequest;
+import com.hb.cda.electricitybusiness.controller.dto.BookingResponse;
 import com.hb.cda.electricitybusiness.model.Booking;
 import org.mapstruct.*;
 

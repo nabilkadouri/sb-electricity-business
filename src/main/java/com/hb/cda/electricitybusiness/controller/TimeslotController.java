@@ -3,8 +3,8 @@ package com.hb.cda.electricitybusiness.controller;
 
 import com.hb.cda.electricitybusiness.business.TimeslotBusiness;
 import com.hb.cda.electricitybusiness.business.exception.BusinessException;
-import com.hb.cda.electricitybusiness.dto.TimeslotRequest;
-import com.hb.cda.electricitybusiness.dto.TimeslotResponse;
+import com.hb.cda.electricitybusiness.controller.dto.TimeslotRequest;
+import com.hb.cda.electricitybusiness.controller.dto.TimeslotResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -2,9 +2,9 @@ package com.hb.cda.electricitybusiness.business.impl;
 
 import com.hb.cda.electricitybusiness.business.TimeslotBusiness;
 import com.hb.cda.electricitybusiness.business.exception.BusinessException;
-import com.hb.cda.electricitybusiness.dto.TimeslotRequest;
-import com.hb.cda.electricitybusiness.dto.TimeslotResponse;
-import com.hb.cda.electricitybusiness.dto.mapper.TimeslotMapper;
+import com.hb.cda.electricitybusiness.controller.dto.TimeslotRequest;
+import com.hb.cda.electricitybusiness.controller.dto.TimeslotResponse;
+import com.hb.cda.electricitybusiness.controller.dto.mapper.TimeslotMapper;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
 import com.hb.cda.electricitybusiness.model.Timeslot;
 import com.hb.cda.electricitybusiness.repository.ChargingStationRepository;

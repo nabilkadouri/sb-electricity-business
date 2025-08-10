@@ -1,7 +1,7 @@
 package com.hb.cda.electricitybusiness.controller;
 
-import com.hb.cda.electricitybusiness.dto.BookingRequest;
-import com.hb.cda.electricitybusiness.dto.BookingResponse;
+import com.hb.cda.electricitybusiness.controller.dto.BookingRequest;
+import com.hb.cda.electricitybusiness.controller.dto.BookingResponse;
 import com.hb.cda.electricitybusiness.business.impl.BookingBusinessImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

@@ -1,6 +1,6 @@
 package com.hb.cda.electricitybusiness.model;
 
-import com.hb.cda.electricitybusiness.dto.PictureDetailsDTO;
+import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -136,33 +136,4 @@ public class User implements UserDetails {
         return true;
     }
 
-    public void addChargingStation(ChargingStation chargingStation) {
-        if (!this.chargingStations.contains(chargingStation)) {
-            this.chargingStations.add(chargingStation);
-            chargingStation.setUser(this);
-        }
-    }
-
-    public void removeChargingStation(ChargingStation chargingStation) {
-        if (this.chargingStations.remove(chargingStation)) {
-            if (chargingStation.getUser() == this) {
-                chargingStation.setUser(null);
-            }
-        }
-    }
-
-    public void addBooking(Booking booking) {
-        if (!this.bookings.contains(booking)) {
-            this.bookings.add(booking);
-            booking.setUser(this);
-        }
-    }
-
-    public void removeBooking(Booking booking) {
-        if (this.bookings.remove(booking)) {
-            if (booking.getUser() == this) {
-                booking.setUser(null);
-            }
-        }
-    }
 }

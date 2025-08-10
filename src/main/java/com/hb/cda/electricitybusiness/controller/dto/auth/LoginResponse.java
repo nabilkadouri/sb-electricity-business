@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.dto.auth;
+package com.hb.cda.electricitybusiness.controller.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

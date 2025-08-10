@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.service;
+package com.hb.cda.electricitybusiness.config;
 
 import com.hb.cda.electricitybusiness.enums.BookingStatus;
 import com.hb.cda.electricitybusiness.enums.ChargingStationStatus;

@@ -1,30 +1,23 @@
-package com.hb.cda.electricitybusiness.dto.mapper;
+package com.hb.cda.electricitybusiness.controller.dto.mapper;
 
-import com.hb.cda.electricitybusiness.dto.PictureDetailsDTO;
-import com.hb.cda.electricitybusiness.dto.UserResponse;
-import com.hb.cda.electricitybusiness.dto.UserUpdateRequest;
+import com.hb.cda.electricitybusiness.controller.dto.RegisterRequest;
+import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
+import com.hb.cda.electricitybusiness.controller.dto.UserResponse;
+import com.hb.cda.electricitybusiness.controller.dto.UserUpdateRequest;
 import com.hb.cda.electricitybusiness.model.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {BookingMapper.class, ChargingStationMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {BookingMapper.class, ChargingStationMapper.class},
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
     @Mapping(target = "role", source = "roles")
     @Mapping(target = "profilePicture", expression = "java(mapPictureDetailsToFullUrl(user.getProfilePicture()))")
     UserResponse userToUserResponse(User user);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "ownsStation", ignore = true)
-    @Mapping(target = "profilePicture", ignore = true)
-    @Mapping(target = "codeCheck", ignore = true)
-    @Mapping(target = "chargingStations", ignore = true)
-    @Mapping(target = "bookings", ignore = true)
-    @Mapping(target = "password", ignore = true)
+    User convertToEntity(RegisterRequest dto);
+
     User updateUserFromRequest(UserUpdateRequest userUpdateRequest, @MappingTarget User user);
 
     // --- Méthode pour mapper PictureDetailsDTO en incluant l'URL de base ---

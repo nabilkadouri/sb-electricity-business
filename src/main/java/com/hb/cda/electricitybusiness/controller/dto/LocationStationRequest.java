@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.dto;
+package com.hb.cda.electricitybusiness.controller.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.exception;
+package com.hb.cda.electricitybusiness.business.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

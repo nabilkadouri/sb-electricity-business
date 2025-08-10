@@ -1,9 +1,8 @@
-package com.hb.cda.electricitybusiness.dto.mapper;
+package com.hb.cda.electricitybusiness.controller.dto.mapper;
 
-import com.hb.cda.electricitybusiness.controller.dto.mapper.UserMapper;
-import com.hb.cda.electricitybusiness.dto.ChargingStationRequest;
-import com.hb.cda.electricitybusiness.dto.ChargingStationResponse;
-import com.hb.cda.electricitybusiness.dto.PictureDetailsDTO;
+import com.hb.cda.electricitybusiness.controller.dto.ChargingStationRequest;
+import com.hb.cda.electricitybusiness.controller.dto.ChargingStationResponse;
+import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
 import org.mapstruct.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -14,7 +13,7 @@ public interface ChargingStationMapper {
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(target = "picture", expression = "java(mapPictureDetailsToFullUrl(chargingStation.getPicture()))")
-    ChargingStationResponse ToResponse(ChargingStation chargingStation);
+    ChargingStationResponse toResponse(ChargingStation chargingStation);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)

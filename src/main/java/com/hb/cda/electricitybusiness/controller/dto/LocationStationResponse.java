@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.dto;
+package com.hb.cda.electricitybusiness.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package com.hb.cda.electricitybusiness.model;
 
-import com.hb.cda.electricitybusiness.dto.PictureDetailsDTO;
+import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.enums.ChargingStationStatus;
 import jakarta.persistence.*;
 import lombok.Data;

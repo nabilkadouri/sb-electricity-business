@@ -1,6 +1,6 @@
 package com.hb.cda.electricitybusiness.service;
 
-import com.hb.cda.electricitybusiness.exception.InvalidMediaTypeException;
+import com.hb.cda.electricitybusiness.business.exception.InvalidMediaTypeException;
 import jakarta.annotation.PostConstruct;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;

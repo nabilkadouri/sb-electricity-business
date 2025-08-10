@@ -1,7 +1,7 @@
-package com.hb.cda.electricitybusiness.dto.mapper;
+package com.hb.cda.electricitybusiness.controller.dto.mapper;
 
-import com.hb.cda.electricitybusiness.dto.LocationStationRequest;
-import com.hb.cda.electricitybusiness.dto.LocationStationResponse;
+import com.hb.cda.electricitybusiness.controller.dto.LocationStationRequest;
+import com.hb.cda.electricitybusiness.controller.dto.LocationStationResponse;
 import com.hb.cda.electricitybusiness.model.LocationStation;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

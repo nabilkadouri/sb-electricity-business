@@ -1,54 +1,79 @@
 package com.hb.cda.electricitybusiness.controller;
 
-import com.hb.cda.electricitybusiness.dto.LocationStationRequest;
-import com.hb.cda.electricitybusiness.dto.LocationStationResponse;
-import com.hb.cda.electricitybusiness.service.LocationStationService;
+import com.hb.cda.electricitybusiness.business.LocationStationBusiness;
+import com.hb.cda.electricitybusiness.controller.dto.LocationStationRequest;
+import com.hb.cda.electricitybusiness.controller.dto.LocationStationResponse;
+import com.hb.cda.electricitybusiness.controller.dto.mapper.LocationStationMapper;
+import com.hb.cda.electricitybusiness.model.LocationStation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/location_stations")
 public class LocationStationController {
 
-    private LocationStationService locationStationService;
+    private final LocationStationMapper locationStationMapper;
+    private LocationStationBusiness locationStationBusiness;
 
-    public LocationStationController(LocationStationService locationStationService) {
-        this.locationStationService = locationStationService;
+    public LocationStationController(LocationStationBusiness locationStationBusiness, LocationStationMapper locationStationMapper) {
+        this.locationStationBusiness = locationStationBusiness;
+        this.locationStationMapper = locationStationMapper;
     }
 
     @GetMapping
     public ResponseEntity<List<LocationStationResponse>> getAllLocationStation(){
-        List<LocationStationResponse> locationStations = locationStationService.getAllLocationStations();
 
-        return new ResponseEntity<>(locationStations, HttpStatus.OK);
+        List<LocationStation> locationStations = locationStationBusiness.getAllLocationStation();
+
+        List<LocationStationResponse> locationStationsResponse = locationStations.stream()
+                .map(locationStationMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(locationStationsResponse, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public  ResponseEntity<LocationStationResponse> getLocationStationById(@PathVariable Long id) {
-        LocationStationResponse locationStation = locationStationService.getLocationStationById(id);
+        LocationStation locationStation = locationStationBusiness.getLocationStationById(id);
 
-        return new ResponseEntity<>(locationStation, HttpStatus.OK);
+        LocationStationResponse locationStationResponse = locationStationMapper.toResponse(locationStation);
+
+        return new ResponseEntity<>(locationStationResponse, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<LocationStationResponse> createLocationStation(@Valid @RequestBody LocationStationRequest request) {
-        LocationStationResponse newLocationStation = locationStationService.createLocationStation(request);
-        return new ResponseEntity<>(newLocationStation, HttpStatus.CREATED);
+
+        LocationStation locationStation = locationStationMapper.convertToEntity(request);
+
+        LocationStation newLocationStation = locationStationBusiness.createLocationStation(locationStation);
+
+        LocationStationResponse locationStationResponse = locationStationMapper.toResponse(newLocationStation);
+
+        return new ResponseEntity<>(locationStationResponse, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<LocationStationResponse> updateLocationStation(@PathVariable Long id, @Valid @RequestBody LocationStationRequest request) {
-        LocationStationResponse updatedLocationStation = locationStationService.updateLocationStation(id, request);
-        return new ResponseEntity<>(updatedLocationStation, HttpStatus.OK);
+
+        LocationStation updateLocationStation = locationStationMapper.convertToEntity(request);
+
+        LocationStation resultEntity = locationStationBusiness.updateLocationStation(id, updateLocationStation);
+
+        LocationStationResponse response = locationStationMapper.toResponse(resultEntity);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLocationStation(@PathVariable Long id) {
-        locationStationService.deleteLocationStation(id);
+        locationStationBusiness.deleteLocationsStation(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

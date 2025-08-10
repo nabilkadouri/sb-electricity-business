@@ -1,7 +1,7 @@
-package com.hb.cda.electricitybusiness.dto.mapper;
+package com.hb.cda.electricitybusiness.controller.dto.mapper;
 
-import com.hb.cda.electricitybusiness.dto.TimeslotRequest;
-import com.hb.cda.electricitybusiness.dto.TimeslotResponse;
+import com.hb.cda.electricitybusiness.controller.dto.TimeslotRequest;
+import com.hb.cda.electricitybusiness.controller.dto.TimeslotResponse;
 import com.hb.cda.electricitybusiness.model.Timeslot;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

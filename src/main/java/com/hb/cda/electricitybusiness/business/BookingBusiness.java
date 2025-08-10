@@ -1,8 +1,8 @@
 package com.hb.cda.electricitybusiness.business;
 
 import com.hb.cda.electricitybusiness.business.exception.BusinessException;
-import com.hb.cda.electricitybusiness.dto.BookingRequest;
-import com.hb.cda.electricitybusiness.dto.BookingResponse;
+import com.hb.cda.electricitybusiness.controller.dto.BookingRequest;
+import com.hb.cda.electricitybusiness.controller.dto.BookingResponse;
 
 import java.util.List;
 

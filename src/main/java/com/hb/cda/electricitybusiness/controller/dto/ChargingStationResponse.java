@@ -1,4 +1,4 @@
-package com.hb.cda.electricitybusiness.dto;
+package com.hb.cda.electricitybusiness.controller.dto;
 
 import com.hb.cda.electricitybusiness.enums.ChargingStationStatus;
 import lombok.AllArgsConstructor;
