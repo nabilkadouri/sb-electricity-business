@@ -22,7 +22,7 @@
 
 # Log files (dynamic, should not be versioned)
 *.log
-logs/
+
 
 # Env file
 src/main/resources/env.properties
@@ -38,7 +38,7 @@ src/main/resources/env.properties
 .sts4-cache/
 
 # IntelliJ IDEA
-.idea/
+
 *.iws
 *.iml
 *.ipr
@@ -51,7 +51,9 @@ src/main/resources/env.properties
 /.nb-gradle/
 
 # VS Code
+.idea/
 .vscode/
+.DS_Store
 
 # OS generated files (specific to your operating system)
 .DS_Store    # macOS
@@ -63,14 +65,16 @@ Thumbs.db    # Windows
 # HELP.md
 
 # Package files (compiled artifacts, should not be versioned)
-*.jar
+
 *.war
 *.ear
 
 # Uploaded files
 /uploads/.DS_Store
 # Application generated files (should not be versioned)
+*.jar
 uploads/
+logs/
 
 src/main/resources/.env
 src/main/resources/env.properties

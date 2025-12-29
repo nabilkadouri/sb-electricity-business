@@ -8,6 +8,7 @@ import com.hb.cda.electricitybusiness.model.*;
 import com.hb.cda.electricitybusiness.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Component
+@Profile("!test")
 public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final LocationStationRepository locationStationRepository;
