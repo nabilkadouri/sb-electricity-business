@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "location_station")
+@Table(name = "`location_station`")
 public class LocationStation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

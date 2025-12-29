@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(name = "users")
+@Table(name = "`users`")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,8 +52,8 @@ public class User implements UserDetails {
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
-    @Embedded // Indique que PictureDetailsDTO est un type embarqué
-    @AttributeOverrides({ // Permet de renommer les colonnes dans la table 'users'
+    @Embedded
+    @AttributeOverrides({
             @AttributeOverride(name = "alt", column = @Column(name = "profile_picture_alt", length = 255)),
             @AttributeOverride(name = "src", column = @Column(name = "profile_picture_src", length = 255)),
             @AttributeOverride(name = "main", column = @Column(name = "profile_picture_is_main"))
@@ -69,11 +69,11 @@ public class User implements UserDetails {
     @Column(name = "roles", nullable = false)
     private String roles = "ROLE_USER";
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<ChargingStation> chargingStations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Booking> bookings = new ArrayList<>();
 

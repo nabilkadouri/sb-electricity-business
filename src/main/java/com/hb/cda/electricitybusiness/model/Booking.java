@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "booking")
+@Table(name = "`booking`")
 public class Booking {
 
     @Id
@@ -35,11 +35,12 @@ public class Booking {
     @Column(name = "status", nullable = false)
     private BookingStatus status;
 
+    @Column(name="cancel_reason")
+    private String cancelReason;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_type")
     private PaymentMethod paymentType;
-
-
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

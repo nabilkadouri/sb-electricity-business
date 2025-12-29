@@ -13,7 +13,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "charging_station")
+@Table(name = "`charging_station`")
 public class ChargingStation {
 
     @Id
