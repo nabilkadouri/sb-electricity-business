@@ -27,7 +27,6 @@ public class AccountBusinessImpl implements AccountBusiness {
     private PasswordEncoder passwordEncoder;
     private JwtUtil jwtUtil;
 
-
     public AccountBusinessImpl(UploadService uploadService, UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.uploadService = uploadService;
         this.userRepository = userRepository;
@@ -83,7 +82,6 @@ public class AccountBusinessImpl implements AccountBusiness {
 
         if (user.getProfilePicture() != null) {
             String currentSrc = user.getProfilePicture().getSrc();
-            // Vérifie que l'image à supprimer n'est pas une image par défaut
             if (currentSrc != null && !currentSrc.startsWith("images/default_")) {
                 uploadService.removeExisting(currentSrc);
             }
@@ -93,7 +91,6 @@ public class AccountBusinessImpl implements AccountBusiness {
             throw new RuntimeException("Utilisateur non trouvé avec l'ID: " + id);
         }
         userRepository.deleteById(id);
-
     }
 
     @Override

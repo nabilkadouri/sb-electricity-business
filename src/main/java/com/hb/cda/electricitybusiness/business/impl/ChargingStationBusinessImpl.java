@@ -11,8 +11,12 @@ import com.hb.cda.electricitybusiness.repository.LocationStationRepository;
 import com.hb.cda.electricitybusiness.repository.UserRepository;
 import com.hb.cda.electricitybusiness.service.UploadService;
 import jakarta.transaction.Transactional;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
@@ -35,7 +39,7 @@ public class ChargingStationBusinessImpl implements ChargingStationBusiness {
     @Transactional
     public ChargingStation createChargingStation(ChargingStation chargingStation) {
 
-        //Récupérer l'id du user
+        // Récupérer l'id du user
         User user = userRepository.findById(chargingStation.getUser().getId())
                 .orElseThrow(() -> new BusinessException("Utilisateur non trouvé avec l'ID: " + chargingStation.getUser().getId()));
         //Assigné l'id du user
@@ -46,6 +50,18 @@ public class ChargingStationBusinessImpl implements ChargingStationBusiness {
                 .orElseThrow(() -> new BusinessException("Adresse de la borne non trouvé avec l'ID: " + chargingStation.getLocationStation().getId()));
         //Assigné l'id de la locationStation
         chargingStation.setLocationStation(locationStation);
+
+        // GESTION IMAGE TEMPORAIRE
+        PictureDetailsDTO picture = chargingStation.getPicture();
+
+        if (picture != null && picture.getSrc() != null && picture.getSrc().contains("/uploads/temp/")) {
+
+            // Déplacer l'image du dossier temporaire vers le dossier final
+            String finalFileName = uploadService.moveTempToFinal(picture.getSrc());
+
+            // Mise à jour du chemin final avant la sauvegarde
+            picture.setSrc("/uploads/" + finalFileName);
+        }
 
         // Sauvegarder la borne de recharge et retourner l'entité sauvegardée
         return chargingStationRepository.save(chargingStation);
@@ -66,11 +82,11 @@ public class ChargingStationBusinessImpl implements ChargingStationBusiness {
     @Transactional
     public ChargingStation updateChargingStation(Long id, ChargingStation chargingStation) {
 
-        // 1. Trouver la borne de recharge existante
+        // Trouver la borne de recharge existante
         ChargingStation existingChargingStation = chargingStationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Borne non trouvée avec l'ID: " + id));
 
-        // 2. Mettre à jour l'entité existante avec les champs de la nouvelle entité
+        // Mettre à jour l'entité existante avec les champs de la nouvelle entité
         if (chargingStation.getNameStation() != null) {
             existingChargingStation.setNameStation(chargingStation.getNameStation());
         }
@@ -97,18 +113,20 @@ public class ChargingStationBusinessImpl implements ChargingStationBusiness {
         }
 
 
-        // 4. Mettre à jour la localisation de la station si nécessaire
+        // Mettre à jour la localisation de la station si nécessaire
         if (chargingStation.getLocationStation() != null) {
-            // La borne peut changer de lieu, donc on met à jour la relation
             LocationStation locationStation = locationStationRepository.findById(chargingStation.getLocationStation().getId())
                     .orElseThrow(() -> new RuntimeException("Nouvelle adresse non trouvée avec l'ID: " + chargingStation.getLocationStation().getId()));
             existingChargingStation.setLocationStation(locationStation);
         }
 
-        // 5. Sauvegarder l'entité mise à jour
+        // Sauvegarder l'entité mise à jour
         return chargingStationRepository.save(existingChargingStation);
 
     }
+
+
+
 
     @Override
     @Transactional
@@ -143,19 +161,30 @@ public class ChargingStationBusinessImpl implements ChargingStationBusiness {
         ChargingStation chargingStation = chargingStationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Borne non trouvé avec l'ID: " + id));
 
+        // 1️⃣ Retirer la station de l’utilisateur
+        User user = chargingStation.getUser();
+        if (user != null) {
+            user.getChargingStations().remove(chargingStation);
+            chargingStation.setUser(null);
+        }
+
+        // 2️⃣ Retirer la station de la localisation
+        LocationStation location = chargingStation.getLocationStation();
+        if (location != null) {
+            location.getChargingStations().remove(chargingStation);
+            chargingStation.setLocationStation(null);
+        }
+
+        // 3️⃣ Supprimer l’image si nécessaire
         if (chargingStation.getPicture() != null) {
             String currentSrc = chargingStation.getPicture().getSrc();
-
             if (currentSrc != null && !currentSrc.startsWith("images/default_")) {
                 uploadService.removeExisting(currentSrc);
             }
         }
 
-        if(!chargingStationRepository.existsById(id)) {
-            throw  new RuntimeException("Borne non trouvé avec l'ID: " + id);
-        }
-        chargingStationRepository.deleteById(id);
+        // 4️⃣ Supprimer la station
+        chargingStationRepository.delete(chargingStation);
     }
-
 }
 

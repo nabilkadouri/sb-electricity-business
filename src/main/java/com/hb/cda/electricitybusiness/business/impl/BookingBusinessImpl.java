@@ -4,7 +4,10 @@ import com.hb.cda.electricitybusiness.business.BookingBusiness;
 import com.hb.cda.electricitybusiness.business.exception.BusinessException;
 import com.hb.cda.electricitybusiness.controller.dto.BookingRequest;
 import com.hb.cda.electricitybusiness.controller.dto.BookingResponse;
+import com.hb.cda.electricitybusiness.controller.dto.BookingStatusUpdateRequest;
 import com.hb.cda.electricitybusiness.controller.dto.mapper.BookingMapper;
+import com.hb.cda.electricitybusiness.enums.BookingStatus;
+import com.hb.cda.electricitybusiness.messaging.MailService;
 import com.hb.cda.electricitybusiness.model.Booking;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
 import com.hb.cda.electricitybusiness.model.Timeslot;
@@ -32,55 +35,49 @@ public class BookingBusinessImpl implements BookingBusiness {
     private BookingRepository bookingRepository;
     private UserRepository userRepository;
     private ChargingStationRepository chargingStationRepository;
+    private MailService mailService;
 
-    public BookingBusinessImpl(BookingMapper bookingMapper, BookingRepository bookingRepository, UserRepository userRepository, ChargingStationRepository chargingStationRepository) {
+    public BookingBusinessImpl(BookingMapper bookingMapper, BookingRepository bookingRepository, UserRepository userRepository, ChargingStationRepository chargingStationRepository, MailService mailService) {
         this.bookingMapper = bookingMapper;
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.chargingStationRepository = chargingStationRepository;
+        this.mailService = mailService;
     }
 
+    // Création d’une réservation
     @Override
     @Transactional
     public BookingResponse createBooking(BookingRequest request) throws BusinessException {
-        // Récupérer l'utilisateur
+
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new BusinessException("Utilisateur non trouvé avec l'ID: " + request.getUserId()));
+                .orElseThrow(() -> new BusinessException("Utilisateur non trouvé"));
 
-        // Récupérer la borne
         ChargingStation chargingStation = chargingStationRepository.findById(request.getChargingStationId())
-                .orElseThrow(() -> new BusinessException("Borne non trouvée avec l'ID: " + request.getChargingStationId()));
+                .orElseThrow(() -> new BusinessException("Borne non trouvée"));
 
-        // Vérifier la disponibilité de la borne
-        if (chargingStation.getIsAvailable() == null || !chargingStation.getIsAvailable()) {
-            throw new BusinessException("La borne de recharge '" + chargingStation.getNameStation() + "' n'est pas disponible.");
+        if (Boolean.FALSE.equals(chargingStation.getIsAvailable())) {
+            throw new BusinessException("La borne n’est pas disponible.");
         }
 
-        LocalDateTime requestedStartDateTime = request.getStartDate();
-        LocalDateTime requestedEndDateTime = request.getEndDate();
+        LocalDateTime requestedStart = request.getStartDate();
+        LocalDateTime requestedEnd = request.getEndDate();
 
-        // Vérifier que l'heure de fin soit après l'heure de début
-        if (requestedEndDateTime.isBefore(requestedStartDateTime) || requestedEndDateTime.isEqual(requestedStartDateTime)) {
-            throw new BusinessException("L'heure de fin de la réservation doit être après l'heure de début.");
+        if (!requestedEnd.isAfter(requestedStart)) {
+            throw new BusinessException("L’heure de fin doit être après l’heure de début.");
         }
 
-        // Vérifier que la demande correspond à un créneau horaire valide
-        if (!isValidTimeslot(chargingStation.getTimeslots(), requestedStartDateTime, requestedEndDateTime)) {
-            throw new BusinessException("La période de réservation demandée ne correspond pas à un créneau horaire configuré pour cette borne.");
+        // Vérification correspondance timeslot
+        if (!isValidTimeslot(chargingStation.getTimeslots(), requestedStart, requestedEnd)) {
+            throw new BusinessException("La période demandée ne correspond à aucun créneau configuré.");
         }
 
-        // Vérifier les chevauchements avec les réservations existantes
-        List<Booking> existingBookingsForStation = chargingStation.getBookings();
-        if (existingBookingsForStation != null) {
-            for (Booking existingBooking : existingBookingsForStation) {
-                boolean overlapsWithExistingBooking = requestedStartDateTime.isBefore(existingBooking.getEndDate()) &&
-                        requestedEndDateTime.isAfter(existingBooking.getStartDate());
-
-                if (overlapsWithExistingBooking) {
-                    throw new BusinessException("La borne est déjà réservée pour une partie ou la totalité de la période demandée (" +
-                            existingBooking.getStartDate().toLocalDate() + " " + existingBooking.getStartDate().toLocalTime() + " - " +
-                            existingBooking.getEndDate().toLocalTime() + ").");
-                }
+        // Chevauchements
+        for (Booking existing : chargingStation.getBookings()) {
+            boolean overlap = requestedStart.isBefore(existing.getEndDate()) &&
+                    requestedEnd.isAfter(existing.getStartDate());
+            if (overlap) {
+                throw new BusinessException("Ce créneau est déjà réservé.");
             }
         }
 
@@ -88,14 +85,31 @@ public class BookingBusinessImpl implements BookingBusiness {
         Booking booking = bookingMapper.convertToEntity(request);
         booking.setUser(user);
         booking.setChargingStation(chargingStation);
-        booking.setStartDate(requestedStartDateTime);
-        booking.setEndDate(requestedEndDateTime);
-        booking.setTotalAmount(calculateTotalAmount(requestedStartDateTime, requestedEndDateTime, chargingStation.getPricePerHour()));
+        booking.setStartDate(requestedStart);
+        booking.setEndDate(requestedEnd);
+        booking.setTotalAmount(
+                calculateTotalAmount(requestedStart, requestedEnd, chargingStation.getPricePerHour())
+        );
 
         Booking newBooking = bookingRepository.save(booking);
+
+        // EMAIL → Notification au locataire
+        mailService.sendReservationCreatedEmail(
+                user.getEmail(),
+                chargingStation.getNameStation(),
+                requestedStart.toLocalDate().toString(),
+                requestedStart.toLocalTime().toString(),
+                requestedEnd.toLocalTime().toString()
+        );
+
+        // EMAIL → Notification au propriétaire
+        mailService.notifyOwnerPendingBooking(newBooking);
+
         return bookingMapper.ToResponse(newBooking);
     }
 
+
+    // Récupération une réservation par son ID
     @Override
     @Transactional(readOnly = true)
     public BookingResponse getBookingById(Long id) throws BusinessException{
@@ -104,6 +118,23 @@ public class BookingBusinessImpl implements BookingBusiness {
         return bookingMapper.ToResponse(booking);
     }
 
+
+    // Récupération toutes les réservations d'une borne
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingResponse> getAllBookingByChargingStationId(Long stationId) throws BusinessException {
+
+        chargingStationRepository.findById(stationId)
+                .orElseThrow(() -> new BusinessException("Borne introuvable"));
+
+        List<Booking> bookings = bookingRepository.findByChargingStationId(stationId);
+
+        return bookings.stream()
+                .map(bookingMapper::ToResponse)
+                .collect(Collectors.toList());
+    }
+
+    // Récupération toutes les réservations
     @Override
     @Transactional(readOnly = true)
     public List<BookingResponse> getAllBookings() {
@@ -113,6 +144,8 @@ public class BookingBusinessImpl implements BookingBusiness {
                 .collect(Collectors.toList());
     }
 
+
+    // Récupération toutes les réservations d'un utilisateur
     @Override
     @Transactional(readOnly = true)
     public List<BookingResponse> getAllBookingByUserId(Long userId) throws BusinessException{
@@ -126,18 +159,34 @@ public class BookingBusinessImpl implements BookingBusiness {
                 .collect(Collectors.toList());
     }
 
+
+
+    // Modification statut (Confirmé / Annulé)
     @Override
-    @Transactional(readOnly = true)
-    public List<BookingResponse> getAllBookingByChargingStationId(Long chargingStationId) throws BusinessException {
-        ChargingStation chargingStation = chargingStationRepository.findById(chargingStationId)
-                .orElseThrow(() -> new BusinessException("Utilisateur non trouvé avec l'ID :" + chargingStationId));
+    public Booking updateBookingStatus(Long id, BookingStatusUpdateRequest request) throws BusinessException {
 
-        List<Booking> bookings = bookingRepository.findByUserId(chargingStation.getId());
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Réservation introuvable"));
 
-        return bookings.stream()
-                .map(bookingMapper::ToResponse)
-                .collect(Collectors.toList());
+        BookingStatus newStatus = BookingStatus.fromDisplayValue(request.getStatus());
+
+        booking.setStatus(newStatus);
+
+        if (newStatus == BookingStatus.CANCELLED) {
+            booking.setCancelReason(request.getCancelReason());
+        }
+
+        Booking saved = bookingRepository.save(booking);
+
+        // EMAIL LOCATAIRE
+        switch (newStatus) {
+            case CONFIRMED -> mailService.notifyUserBookingConfirmed(saved);
+            case CANCELLED -> mailService.notifyUserBookingCancelled(saved);
+        }
+
+        return saved;
     }
+
 
     @Override
     @Transactional
@@ -150,24 +199,27 @@ public class BookingBusinessImpl implements BookingBusiness {
     }
 
 
-    // Methode de calcule du total d'une reservation de borne
+    // Méthode de calcul du total d'une réservation de borne (prix + frais 2,5 %)
     private static BigDecimal calculateTotalAmount(LocalDateTime startTime, LocalDateTime endTime, BigDecimal pricePerHour) {
-        //Obtenir le nombre d'heures entre deux créneaux( en minute)
-        Duration duration = Duration.between(startTime,endTime);
 
-        //Convertir les minutes en heure
-        double convertMinutesToHours = duration.toMinutes() / 60.0;
+        // Calcul de la durée en minutes
+        Duration duration = Duration.between(startTime, endTime);
+        double hours = duration.toMinutes() / 60.0;
 
-        BigDecimal finalPricePerHour;
-        if(pricePerHour != null) {
-            finalPricePerHour = pricePerHour;
-        } else {
-            finalPricePerHour = BigDecimal.ZERO;
-        }
+        // Sécuriser pricePerHour (éviter les null)
+        BigDecimal rate = pricePerHour != null ? pricePerHour : BigDecimal.ZERO;
 
-        BigDecimal totalAmount = finalPricePerHour.multiply(BigDecimal.valueOf(convertMinutesToHours));
+        // Calcul du prix de base (ex: 7.8 × 1.5 = 11.70)
+        BigDecimal basePrice = rate.multiply(BigDecimal.valueOf(hours));
 
-        return totalAmount.setScale(2, RoundingMode.HALF_UP);
+        // Calcul des frais de réservation (2.5 %)
+        BigDecimal fee = basePrice.multiply(new BigDecimal("0.025"));
+
+        // Total TTC = prix + frais
+        BigDecimal total = basePrice.add(fee);
+
+        // Arrondi à 2 décimales
+        return total.setScale(2, RoundingMode.HALF_UP);
     }
 
 
@@ -179,7 +231,11 @@ public class BookingBusinessImpl implements BookingBusiness {
             return false;
         }
 
-        DayOfWeek requestDay = requestedStart.getDayOfWeek();
+        // Conversion automatique
+        com.hb.cda.electricitybusiness.enums.DayOfWeek requestDay =
+                com.hb.cda.electricitybusiness.enums.DayOfWeek.valueOf(
+                        requestedStart.getDayOfWeek().name()
+                );
         LocalTime startTime = requestedStart.toLocalTime();
         LocalTime endTime = requestedEnd.toLocalTime();
 
@@ -192,7 +248,5 @@ public class BookingBusinessImpl implements BookingBusiness {
         }
         return false;
     }
-
-
 
 }
