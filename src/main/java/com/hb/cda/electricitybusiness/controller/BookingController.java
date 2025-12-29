@@ -1,8 +1,12 @@
 package com.hb.cda.electricitybusiness.controller;
 
+import com.hb.cda.electricitybusiness.business.BookingBusiness;
 import com.hb.cda.electricitybusiness.controller.dto.BookingRequest;
 import com.hb.cda.electricitybusiness.controller.dto.BookingResponse;
 import com.hb.cda.electricitybusiness.business.impl.BookingBusinessImpl;
+import com.hb.cda.electricitybusiness.controller.dto.BookingStatusUpdateRequest;
+import com.hb.cda.electricitybusiness.controller.dto.mapper.BookingMapper;
+import com.hb.cda.electricitybusiness.model.Booking;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +18,14 @@ import java.util.List;
 @RequestMapping(value = "/api/bookings")
 public class BookingController {
 
+    private final BookingBusiness bookingBusiness;
+    private final BookingMapper bookingMapper;
     private BookingBusinessImpl bookingService;
 
-    public BookingController(BookingBusinessImpl bookingService) {
+    public BookingController(BookingBusinessImpl bookingService, BookingBusiness bookingBusiness, BookingMapper bookingMapper) {
         this.bookingService = bookingService;
+        this.bookingBusiness = bookingBusiness;
+        this.bookingMapper = bookingMapper;
     }
 
     @GetMapping
@@ -43,6 +51,17 @@ public class BookingController {
         BookingResponse newBooking = bookingService.createBooking(request);
         return new ResponseEntity<>(newBooking, HttpStatus.CREATED);
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<BookingResponse> updateBookingStatus(
+            @PathVariable Long id,
+            @RequestBody BookingStatusUpdateRequest request
+    ) {
+        Booking updatedBooking = bookingBusiness.updateBookingStatus(id, request);
+        BookingResponse response = bookingMapper.ToResponse(updatedBooking);
+        return ResponseEntity.ok(response);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {

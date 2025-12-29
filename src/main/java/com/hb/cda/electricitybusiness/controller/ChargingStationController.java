@@ -6,6 +6,8 @@ import com.hb.cda.electricitybusiness.controller.dto.ChargingStationResponse;
 import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.controller.dto.mapper.ChargingStationMapper;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
+import com.hb.cda.electricitybusiness.model.LocationStation;
+import com.hb.cda.electricitybusiness.model.User;
 import com.hb.cda.electricitybusiness.service.UploadService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,17 +23,22 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/charging_stations")
 public class ChargingStationController {
 
-    private ChargingStationBusiness chargingStationBusiness;
-    private ChargingStationMapper chargingStationMapper;
+    private final ChargingStationBusiness chargingStationBusiness;
+    private final ChargingStationMapper chargingStationMapper;
+    private final UploadService uploadService;
 
-    public ChargingStationController(ChargingStationBusiness chargingStationBusiness, ChargingStationMapper chargingStationMapper) {
+    public ChargingStationController(
+            ChargingStationBusiness chargingStationBusiness,
+            ChargingStationMapper chargingStationMapper,
+            UploadService uploadService
+    ) {
         this.chargingStationBusiness = chargingStationBusiness;
         this.chargingStationMapper = chargingStationMapper;
+        this.uploadService = uploadService;
     }
 
     @GetMapping
     public ResponseEntity<List<ChargingStationResponse>> getAllChargingStations() {
-
         List<ChargingStation> chargingStations = chargingStationBusiness.getAllChargingStation();
 
         List<ChargingStationResponse> chargingStationResponses = chargingStations.stream()
@@ -43,11 +50,8 @@ public class ChargingStationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ChargingStationResponse> getChargingStationById(@PathVariable Long id) {
-
         ChargingStation chargingStation = chargingStationBusiness.getChargingStationById(id);
-
         ChargingStationResponse chargingStationResponse = chargingStationMapper.toResponse(chargingStation);
-
         return new ResponseEntity<>(chargingStationResponse, HttpStatus.OK);
     }
 
@@ -55,48 +59,88 @@ public class ChargingStationController {
     public ResponseEntity<ChargingStationResponse> createChargingStation(@Valid @RequestBody ChargingStationRequest request) {
         ChargingStation chargingStation = chargingStationMapper.convertToEntity(request);
 
-        ChargingStation newChargingStation = chargingStationBusiness.createChargingStation(chargingStation);
+        User user = new User();
+        user.setId(request.getUserId());
+        chargingStation.setUser(user);
 
-        ChargingStationResponse chargingStationResponse = chargingStationMapper.toResponse(newChargingStation);
+        LocationStation location = new LocationStation();
+        location.setId(request.getLocationStationId());
+        chargingStation.setLocationStation(location);
+
+        ChargingStation created = chargingStationBusiness.createChargingStation(chargingStation);
+
+        ChargingStationResponse chargingStationResponse = chargingStationMapper.toResponse(created);
         return new ResponseEntity<>(chargingStationResponse, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ChargingStationResponse> updateChargingStation(@PathVariable Long id, @Valid @RequestBody ChargingStationRequest request) {
+    public ResponseEntity<ChargingStationResponse> updateChargingStation(
+            @PathVariable Long id,
+            @Valid @RequestBody ChargingStationRequest request
+    ) {
+        ChargingStation chargingStation = chargingStationMapper.convertToEntity(request);
 
-        ChargingStation  updatedChargingStation = chargingStationMapper.convertToEntity(request);
+        if (request.getUserId() != null) {
+            User user = new User();
+            user.setId(request.getUserId());
+            chargingStation.setUser(user);
+        }
 
-        ChargingStation resultEntity = chargingStationBusiness.updateChargingStation(id, updatedChargingStation);
+        if (request.getLocationStationId() != null) {
+            LocationStation location = new LocationStation();
+            location.setId(request.getLocationStationId());
+            chargingStation.setLocationStation(location);
+        }
 
-        ChargingStationResponse response = chargingStationMapper.toResponse(resultEntity);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        ChargingStation updated = chargingStationBusiness.updateChargingStation(id, chargingStation);
+        ChargingStationResponse response = chargingStationMapper.toResponse(updated);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/upload-temp-picture")
+    public ResponseEntity<PictureDetailsDTO> uploadTempPicture(@RequestParam("file") MultipartFile file, @RequestParam(value = "alt", required = false) String alt) {
+        String tempFileName = uploadService.uploadTempImage(file);
+
+        String fileUrl = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/uploads/temp/")
+                .path(tempFileName)
+                .toUriString();
+
+        PictureDetailsDTO picture = new PictureDetailsDTO(alt != null ? alt : "Photo temporaire de la borne", fileUrl,true
+        );
+
+        return ResponseEntity.ok(picture);
     }
 
     @PostMapping("/{chargingStationId}/uploadPicture")
-    public ResponseEntity<String> uploadChargingStationPicture(
+    public ResponseEntity<PictureDetailsDTO> uploadChargingStationPicture(
             @PathVariable Long chargingStationId,
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "alt", required = false) String altText,
             @RequestParam(value = "isMain", defaultValue = "true") boolean isMain
     ) {
+        String newFileName = chargingStationBusiness.updateChargingStationPicture(
+                chargingStationId, file, altText, isMain
+        );
 
-        // Le contrôleur appelle simplement le service et récupère le nom du fichier
-        String newFileName = chargingStationBusiness.updateChargingStationPicture(chargingStationId, file, altText, isMain);
-
-        // Construire l'URL pour la réponse du contrôleur
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/uploads/")
                 .path(newFileName)
                 .toUriString();
 
-        return ResponseEntity.ok("Image de la borne de recharge uploadée avec succès pour la station " + chargingStationId + ". URL: " + fileDownloadUri);
+        PictureDetailsDTO response = new PictureDetailsDTO();
+        response.setSrc(fileDownloadUri);
+        response.setAlt(altText);
+        response.setMain(isMain);
 
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteChargingStation(@PathVariable Long id) {
         chargingStationBusiness.deleteChargingStation(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 }
