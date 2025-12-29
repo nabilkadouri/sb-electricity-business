@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CodeCheckRequest {
     @NotBlank(message = "L'email est obligatoire")
-    @Email(message = "Le format de l'email est invalide") // Validation du format de l'email
+    @Email(message = "Le format de l'email est invalide")
     private String email;
 
     @NotBlank(message = "Le code est obligatoire")

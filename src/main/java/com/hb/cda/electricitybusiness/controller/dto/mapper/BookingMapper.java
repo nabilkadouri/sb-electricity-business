@@ -5,11 +5,17 @@ import com.hb.cda.electricitybusiness.controller.dto.BookingResponse;
 import com.hb.cda.electricitybusiness.model.Booking;
 import org.mapstruct.*;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {
+                ChargingStationMapper.class,
+                UserMapper.class
+        }
+)
 public interface BookingMapper {
 
-    @Mapping(source = "user.id", target = "userId")
-    @Mapping(source = "chargingStation.id", target = "chargingStationId")
+    @Mapping(source = "user", target = "user")
+    @Mapping(source = "chargingStation", target = "chargingStation")
+    @Mapping(target = "cancelReason", source = "cancelReason")
     BookingResponse ToResponse(Booking booking);
 
     @Mapping(target = "id", ignore = true)

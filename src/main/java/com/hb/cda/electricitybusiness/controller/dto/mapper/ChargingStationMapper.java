@@ -1,71 +1,39 @@
 package com.hb.cda.electricitybusiness.controller.dto.mapper;
 
+import com.hb.cda.electricitybusiness.controller.dto.ChargingStationBookingDTO;
 import com.hb.cda.electricitybusiness.controller.dto.ChargingStationRequest;
 import com.hb.cda.electricitybusiness.controller.dto.ChargingStationResponse;
-import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
 import org.mapstruct.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
-        uses = {LocationStationMapper.class, UserMapper.class, TimeslotMapper.class, BookingMapper.class})
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {
+                LocationStationMapper.class,
+                TimeslotMapper.class,
+                PictureMapper.class
+        }
+)
 public interface ChargingStationMapper {
 
     @Mapping(source = "user.id", target = "userId")
-    @Mapping(target = "picture", expression = "java(mapPictureDetailsToFullUrl(chargingStation.getPicture()))")
+    @Mapping(
+            source = "picture",
+            target = "picture",
+            qualifiedByName = "toFullUrl"
+    )
     ChargingStationResponse toResponse(ChargingStation chargingStation);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "plugType", ignore = true)
-    @Mapping(target = "picture", ignore = true)
     @Mapping(target = "timeslots", ignore = true)
     @Mapping(target = "locationStation", ignore = true)
     @Mapping(target = "bookings", ignore = true)
     ChargingStation convertToEntity(ChargingStationRequest request);
 
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "plugType", ignore = true)
-    @Mapping(target = "picture", ignore = true)
-    @Mapping(target = "locationStation", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "timeslots", ignore = true)
-    @Mapping(target = "bookings", ignore = true)
-    void updateEntityFromDto(ChargingStationRequest request, @MappingTarget ChargingStation entity);
-
-    default PictureDetailsDTO mapPictureDetailsToFullUrl(PictureDetailsDTO pictureDetails) {
-        if (pictureDetails == null) {
-            return null;
-        }
-
-        String src = pictureDetails.getSrc();
-        String alt = pictureDetails.getAlt();
-        String fullSrc;
-
-        if (alt != null) {
-            alt = alt.replace("\"", "");
-        }
-
-        if (src != null) {
-            if (src.startsWith("images/default_")) {
-                fullSrc = ServletUriComponentsBuilder.fromCurrentContextPath()
-                        .path("/images/")
-                        .path(src.substring(src.lastIndexOf('/') + 1))
-                        .toUriString();
-            } else {
-
-                fullSrc = ServletUriComponentsBuilder.fromCurrentContextPath()
-                        .path("/uploads/thumbnail-")
-                        .path(src)
-                        .toUriString();
-            }
-        } else {
-            fullSrc = null;
-        }
-
-        return new PictureDetailsDTO(alt, fullSrc, pictureDetails.isMain());
-    }
+    ChargingStationBookingDTO toBookingDTO(ChargingStation station);
 }
+

@@ -24,6 +24,7 @@ public class ChargingStationRequest {
     @NotNull(message = "Le prix est obligatoire")
     @Positive(message = "Le prix doit être positive")
     private BigDecimal pricePerHour;
+    private PictureDetailsDTO picture;
     private ChargingStationStatus status;
     private Boolean isAvailable;
     @NotNull(message = "L'ID de l'emplacement de la station est obligatoire")

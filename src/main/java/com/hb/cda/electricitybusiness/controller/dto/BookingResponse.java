@@ -19,6 +19,7 @@ public class BookingResponse {
     private LocalDateTime endDate;
     private BigDecimal totalAmount;
     private BookingStatus status;
-    private Long userId;
-    private Long chargingStationId;
+    private String cancelReason;
+    private UserBookingDTO user;
+    private ChargingStationBookingDTO chargingStation;
 }
