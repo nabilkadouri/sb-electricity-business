@@ -7,5 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthService {
     void processLoginAndSendCode(LoginRequest loginRequest);
+
     LoginResponse verifyCodeAndGenerateTokens(CodeCheckRequest codeCheckRequest, HttpServletResponse response);
 }

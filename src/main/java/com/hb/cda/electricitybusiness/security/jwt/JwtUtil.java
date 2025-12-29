@@ -18,15 +18,15 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // La clé secrète pour signer les tokens, lue depuis les propriétés de l'application (ex: application.properties)
+    // La clé secrète pour signer les tokens, lue depuis les propriétés de l'application
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
-    // Durée de validité du token d'accès en millisecondes (ex: 24 heures)
+    // Durée de validité du token d'accès en millisecondes
     @Value("${jwt.expiration}")
     private long EXPIRATION_TIME;
 
-    // Durée de validité du refresh token en millisecondes (généralement plus longue, ex: 7 jours)
+    // Durée de validité du refresh token en millisecondes
     @Value("${jwt.refresh.expiration}")
     private long REFRESH_EXPIRATION_TIME;
 
@@ -107,8 +107,6 @@ public class JwtUtil {
      */
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        // Vous pouvez ajouter des rôles ou d'autres informations personnalisées aux claims ici
-        // Par exemple: claims.put("roles", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         return createToken(claims, userDetails.getUsername(), EXPIRATION_TIME);
     }
 
@@ -120,7 +118,6 @@ public class JwtUtil {
      */
     public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        // Vous pouvez ajouter des claims spécifiques au refresh token si nécessaire
         return createToken(claims, userDetails.getUsername(), REFRESH_EXPIRATION_TIME);
     }
 
@@ -135,10 +132,10 @@ public class JwtUtil {
     private String createToken(Map<String, Object> claims, String subject, long expirationTime) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject) // Le sujet est généralement l'identifiant de l'utilisateur (email)
-                .setIssuedAt(new Date(System.currentTimeMillis())) // Date de création du token
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime)) // Date d'expiration
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256) // Signature avec la clé secrète et l'algorithme HS256
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 

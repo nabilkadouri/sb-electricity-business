@@ -4,6 +4,7 @@ package com.hb.cda.electricitybusiness.security.config;
 import com.hb.cda.electricitybusiness.security.jwt.JwtRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -42,24 +43,43 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests((req) -> req
+                .authorizeHttpRequests(req -> req
+                        // Auth / public
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/account/register").permitAll()
+
+                        // Upload temporaire (formulaire création)
+                        .requestMatchers("/api/charging_stations/upload-temp-picture").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Ressources statiques
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/icons/**").permitAll()
+
+                        // MÉTIER → connecté obligatoire
+                        .requestMatchers("/api/bookings/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/bookings/*/status").authenticated()
+
+
+                        // Le reste
                         .anyRequest().authenticated()
                 )
-                //Ajoute votre filtre JWT avant le filtre d'authentification par nom d'utilisateur/mot de passe de Spring Security
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
-
         return http.build();
+    }
+
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Permettre l'origine de votre frontend Angular
+        // Permettre l'origine de du frontend
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         // Permettre les méthodes HTTP standard
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
@@ -73,13 +93,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-
-
-
 }
