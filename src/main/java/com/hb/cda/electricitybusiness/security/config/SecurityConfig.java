@@ -44,25 +44,27 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
-                        // Auth / public
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/account/register").permitAll()
 
-                        // Upload temporaire (formulaire création)
+                        // Réinitialisation via email (public)
+                        .requestMatchers(HttpMethod.POST, "/api/account/password/**").permitAll()
+
+                        // Modifier son mot de passe (privé)
+                        .requestMatchers(HttpMethod.PATCH, "/api/account/*/password").authenticated()
+
                         .requestMatchers("/api/charging_stations/upload-temp-picture").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // Ressources statiques
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/icons/**").permitAll()
 
-                        // MÉTIER → connecté obligatoire
+                        // autres routes
                         .requestMatchers("/api/bookings/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/bookings/*/status").authenticated()
 
-
-                        // Le reste
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

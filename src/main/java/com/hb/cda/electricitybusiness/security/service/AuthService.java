@@ -9,4 +9,8 @@ public interface AuthService {
     void processLoginAndSendCode(LoginRequest loginRequest);
 
     LoginResponse verifyCodeAndGenerateTokens(CodeCheckRequest codeCheckRequest, HttpServletResponse response);
+
+    void applyNewPassword(String token, String newPassword);
+
+    void sendResetPasswordLink(String email);
 }

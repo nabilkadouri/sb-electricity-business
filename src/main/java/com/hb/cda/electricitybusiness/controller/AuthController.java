@@ -1,5 +1,6 @@
 package com.hb.cda.electricitybusiness.controller;
 
+import com.hb.cda.electricitybusiness.controller.dto.PasswordResetDTO;
 import com.hb.cda.electricitybusiness.controller.dto.auth.CodeCheckRequest;
 import com.hb.cda.electricitybusiness.controller.dto.auth.LoginRequest;
 import com.hb.cda.electricitybusiness.controller.dto.auth.LoginResponse;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -24,6 +27,7 @@ public class AuthController {
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<MessageResponse> authenticateUser (@Valid @RequestBody LoginRequest loginRequest) {
@@ -36,6 +40,7 @@ public class AuthController {
 
     }
 
+
     @PostMapping("/login/check")
     public ResponseEntity<?> verifyCode(@Valid @RequestBody CodeCheckRequest codeCheckRequest, HttpServletResponse response) {
         try {
@@ -45,4 +50,22 @@ public class AuthController {
             return new ResponseEntity<>(new MessageResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
+
+
+    @PostMapping("/password/forgot")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        authService.sendResetPasswordLink(email);
+        return ResponseEntity.ok("Email envoyé");
+    }
+
+
+
+    @PostMapping("/password/reset")
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetDTO dto) {
+
+       authService.applyNewPassword(dto.getToken(), dto.getNewPassword());
+        return ResponseEntity.ok("Mot de passe réinitialisé avec succès");
+    }
+
 }

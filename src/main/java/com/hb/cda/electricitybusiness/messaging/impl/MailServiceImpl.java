@@ -44,15 +44,24 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public void sendResetPassword(User user, String token) {
-        String serverUrl = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
-        String message = """
-                    To reset your password click on <a href="%s">this link</a>
-                    """
-                .formatted(serverUrl+"/reset-password.html?token="+token);
-        sendMailBase(user.getEmail(), message, "Spring Holiday Reset Password");
+    public void sendResetPassword(User user, String resetLink) {
 
+        String subject = "Réinitialisation de votre mot de passe";
+
+        String message = """
+        Bonjour %s,<br><br>
+        Vous avez demandé à réinitialiser votre mot de passe.<br>
+        Cliquez sur le lien ci-dessous pour en créer un nouveau :<br><br>
+        <a href="%s">Réinitialiser mon mot de passe</a><br><br>
+        Si vous n’êtes pas à l’origine de cette demande, ignorez simplement cet email.
+        <br><br>
+        L’équipe ElectricityBusiness.
+        """.formatted(user.getFirstName(), resetLink);
+
+        sendMailBase(user.getEmail(), message, subject);
     }
+
+
 
     @Override
     public void sendReservationCreatedEmail(String ownerEmail, String stationName, String date, String start, String end) {

@@ -1,9 +1,7 @@
 package com.hb.cda.electricitybusiness.controller;
 
 import com.hb.cda.electricitybusiness.business.AccountBusiness;
-import com.hb.cda.electricitybusiness.controller.dto.RegisterRequest;
-import com.hb.cda.electricitybusiness.controller.dto.UserEmailUpdateDto;
-import com.hb.cda.electricitybusiness.controller.dto.UserResponse;
+import com.hb.cda.electricitybusiness.controller.dto.*;
 import com.hb.cda.electricitybusiness.controller.dto.mapper.UserMapper;
 import com.hb.cda.electricitybusiness.model.User;
 import jakarta.validation.Valid;
@@ -15,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -29,6 +28,7 @@ public class AccountController {
         this.userMapper = userMapper;
     }
 
+
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody RegisterRequest dto) {
@@ -37,6 +37,7 @@ public class AccountController {
         UserResponse userResponse = userMapper.userToUserResponse(registeredUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
+
 
     @GetMapping("/users")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
@@ -47,11 +48,13 @@ public class AccountController {
         return ResponseEntity.ok(userResponses);
     }
 
+
     @GetMapping("/users/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         User user = accountBusiness.getUserById(id);
         return ResponseEntity.ok(userMapper.userToUserResponse(user));
     }
+
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
@@ -59,6 +62,7 @@ public class AccountController {
         User user = accountBusiness.getAuthenticatedUserResponse(principal.getName());
         return ResponseEntity.ok(userMapper.userToUserResponse(user));
     }
+
 
     @PatchMapping("/{id}/email")
     public ResponseEntity<UserResponse> updateUserEmail(
@@ -69,26 +73,34 @@ public class AccountController {
         return ResponseEntity.ok(userMapper.userToUserResponse(updatedUser));
     }
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         accountBusiness.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/password/{email}")
-    public String resetPassword(@PathVariable String email) {
-        accountBusiness.resetPassword(email);
-        return "Vérifiez votre mail pour réinitialiser votre mot de passe";
+
+    @PatchMapping("/{userId}/password")
+    public ResponseEntity<Map<String, String>> updatePassword(
+            @PathVariable Long userId,
+            @RequestBody PasswordUpdateRequestDTO request) {
+
+        accountBusiness.updatePassword(userId, request.getOldPassword(), request.getNewPassword());
+
+        return ResponseEntity.ok(Map.of("message", "Mot de passe mis à jour avec succès"));
+
     }
 
+
     @PostMapping("/{userId}/uploadProfilePicture")
-    public ResponseEntity<String> uploadProfilePicture(
+    public ResponseEntity<PictureDetailsDTO> uploadProfilePicture(
             @PathVariable Long userId,
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "alt", required = false) String altText,
             @RequestParam(value = "isMain", defaultValue = "true") boolean isMain
     ) {
-        String fileUrl = accountBusiness.uploadProfilePicture(userId, file, altText, isMain);
-        return ResponseEntity.ok(fileUrl);
+        PictureDetailsDTO dto = accountBusiness.uploadProfilePicture(userId, file, altText, isMain);
+        return ResponseEntity.ok(dto);
     }
 }

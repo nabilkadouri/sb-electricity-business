@@ -69,11 +69,11 @@ public class User implements UserDetails {
     @Column(name = "roles", nullable = false)
     private String roles = "ROLE_USER";
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     private List<ChargingStation> chargingStations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     private List<Booking> bookings = new ArrayList<>();
 

@@ -5,6 +5,7 @@ import com.hb.cda.electricitybusiness.business.exception.BusinessException;
 import com.hb.cda.electricitybusiness.business.exception.UserAlreadyExistsException;
 import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.controller.dto.UserEmailUpdateDto;
+import com.hb.cda.electricitybusiness.messaging.MailService;
 import com.hb.cda.electricitybusiness.model.User;
 import com.hb.cda.electricitybusiness.repository.UserRepository;
 import com.hb.cda.electricitybusiness.security.jwt.JwtUtil;
@@ -26,12 +27,14 @@ public class AccountBusinessImpl implements AccountBusiness {
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private JwtUtil jwtUtil;
+    private MailService mailService;
 
-    public AccountBusinessImpl(UploadService uploadService, UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AccountBusinessImpl(UploadService uploadService, UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, MailService mailService) {
         this.uploadService = uploadService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.mailService = mailService;
     }
 
     @Override
@@ -47,14 +50,26 @@ public class AccountBusinessImpl implements AccountBusiness {
         return userRepository.save(user);
     }
 
-    @Override
-    public void resetPassword(String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("Email non trouvé"));
-        UserDetails userDetails = user;
-        String token = jwtUtil.generateToken(userDetails);
+    @Override
+    @Transactional
+    public void updatePassword(Long userId, String oldPassword, String newPassword) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("Utilisateur non trouvé"));
+
+        // Vérifier l'ancien mot de passe
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BusinessException("Ancien mot de passe incorrect");
+        }
+
+        // Encoder le nouveau mot de passe
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+
+        userRepository.save(user);
     }
+
 
     @Override
     public User getAuthenticatedUserResponse(String email) {
@@ -62,11 +77,13 @@ public class AccountBusinessImpl implements AccountBusiness {
                 .orElseThrow(() -> new BusinessException("Utilisateur non trouvé avec l'email: " + email));
     }
 
+
     @Override
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
     }
+
 
     @Override
     public List<User> getAllUsers() {
@@ -109,32 +126,42 @@ public class AccountBusinessImpl implements AccountBusiness {
         return existingUser;
     }
 
+
+
     @Override
     @Transactional
-    public String uploadProfilePicture(Long id, MultipartFile file, String altText, boolean isMain) {
+    public PictureDetailsDTO uploadProfilePicture(Long id, MultipartFile file, String altText, boolean isMain) {
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID " + id));
 
-        //Supprimer ancienne image, sauf si c'est celle par défaut
-        if(user.getProfilePicture() != null && !user.getProfilePicture().getSrc().startsWith("images/default_")) {
-            String currentSrc = user.getProfilePicture().getSrc();
-            uploadService.removeExisting(currentSrc);
+        // Supprimer l'ancienne photo sauf si c'est l'image par défaut
+        if(user.getProfilePicture() != null
+                && user.getProfilePicture().getSrc() != null
+                && !user.getProfilePicture().getSrc().startsWith("images/default_")) {
+            uploadService.removeExisting(user.getProfilePicture().getSrc());
         }
 
-        //Upload de la nouvelle image
+        // Upload nouvelle image
         String newFileName = uploadService.uploadImage(file);
 
-        //Mise à jour de l'entité user
-        PictureDetailsDTO newPictureDetails = new PictureDetailsDTO(altText, newFileName, isMain);
-        user.setProfilePicture(newPictureDetails);
-        userRepository.save(user);
-
-        // Construction de l'url pour la réponse
-        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+        // Construire le bon chemin /uploads/...
+        String finalSrc = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/uploads/")
                 .path(newFileName)
                 .toUriString();
 
-        return fileDownloadUri;
+        PictureDetailsDTO newPicture = new PictureDetailsDTO(
+                altText != null ? altText : "Photo de profil",
+                finalSrc,
+                isMain
+        );
+
+        // 🔥 Mise à jour du user dans la base
+        user.setProfilePicture(newPicture);
+        userRepository.save(user);
+
+        return newPicture;
     }
+
 }

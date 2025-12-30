@@ -1,5 +1,6 @@
 package com.hb.cda.electricitybusiness.business;
 
+import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.controller.dto.UserEmailUpdateDto;
 import com.hb.cda.electricitybusiness.model.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +23,9 @@ public interface AccountBusiness {
      * de passe
      * @param email Le mail de la personne qui souhaite réinitialiser son mot de passe
      */
-    void resetPassword(String email);
+
+
+    void updatePassword(Long userId, String oldPassword, String newPassword);
 
 
     User getAuthenticatedUserResponse(String email);
@@ -53,6 +56,6 @@ public interface AccountBusiness {
      * @param altText Le texte alternatif de la photo
      * @param isMain La photo est la principale par défaut(true)
      */
-    String uploadProfilePicture(Long id, MultipartFile file, String altText, boolean isMain);
+    PictureDetailsDTO uploadProfilePicture(Long id, MultipartFile file, String altText, boolean isMain);
 
 }

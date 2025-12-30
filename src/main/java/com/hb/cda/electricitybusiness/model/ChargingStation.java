@@ -62,11 +62,11 @@ public class ChargingStation {
     @ToString.Exclude
     private LocationStation locationStation;
 
-    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "chargingStation", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     private List<Timeslot> timeslots = new ArrayList<>();
 
-    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "chargingStation", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     private List<Booking> bookings = new ArrayList<>();
 

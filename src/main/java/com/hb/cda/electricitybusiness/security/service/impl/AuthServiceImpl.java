@@ -1,5 +1,6 @@
 package com.hb.cda.electricitybusiness.security.service.impl;
 
+import com.hb.cda.electricitybusiness.business.exception.BusinessException;
 import com.hb.cda.electricitybusiness.controller.dto.auth.CodeCheckRequest;
 import com.hb.cda.electricitybusiness.controller.dto.auth.LoginRequest;
 import com.hb.cda.electricitybusiness.controller.dto.auth.LoginResponse;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
@@ -26,13 +28,16 @@ public class AuthServiceImpl implements AuthService {
     private JwtUtil jwtUtil;
     private UserRepository userRepository;
     private MailService mailService;
+    private PasswordEncoder passwordEncoder;
 
-    public AuthServiceImpl(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository, MailService mailService) {
+    public AuthServiceImpl(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository, MailService mailService, PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         this.mailService = mailService;
+        this.passwordEncoder = passwordEncoder;
     }
+
 
     @Override
     @Transactional
@@ -54,6 +59,7 @@ public class AuthServiceImpl implements AuthService {
         // Envoyer code par email
         mailService.sendVerificationCode(user.getEmail(),codeVerification);
     }
+
 
     @Override
     @Transactional
@@ -82,9 +88,37 @@ public class AuthServiceImpl implements AuthService {
         return new LoginResponse(accessToken);
     }
 
+
     private String generateCode() {
         Random random = new Random();
         int code = random.nextInt(1_000_000);
         return String.format("%06d", code);
     }
+
+
+    @Override
+    @Transactional
+    public void applyNewPassword(String token, String newPassword) {
+
+        String email = jwtUtil.extractUsername(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("Utilisateur introuvable"));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Override
+    public void sendResetPasswordLink(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("Email introuvable"));
+
+        String token = jwtUtil.generateToken(user);
+
+        String resetLink = "http://localhost:4200/reset-password?token=" + token;
+
+        mailService.sendResetPassword(user, resetLink);
+    }
+
 }
