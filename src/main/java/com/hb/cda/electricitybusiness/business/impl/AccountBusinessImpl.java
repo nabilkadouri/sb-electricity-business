@@ -110,19 +110,28 @@ public class AccountBusinessImpl implements AccountBusiness {
         userRepository.deleteById(id);
     }
 
+
     @Override
     @Transactional
     public User updateUserEmail(Long id, UserEmailUpdateDto emailUpdateDto) {
+        // Vérifier si l'utilisateur existe
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
 
+        // Vérifier si l'email a réellement changé
         if (!existingUser.getEmail().equals(emailUpdateDto.getEmail())) {
+
+            // Vérifier que le nouvel email n'est pas déjà utilisé
             if (userRepository.findByEmail(emailUpdateDto.getEmail()).isPresent()) {
                 throw new IllegalArgumentException("L'email " + emailUpdateDto.getEmail() + " est déjà utilisé.");
             }
+
+            // Mettre à jour l'email et sauvegarder
             existingUser.setEmail(emailUpdateDto.getEmail());
             return userRepository.save(existingUser);
         }
+
+        // Si email identique → retourner l’utilisateur sans modification
         return existingUser;
     }
 
