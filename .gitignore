@@ -25,7 +25,8 @@
 
 
 # Env file
-src/main/resources/env.properties
+src/main/resources/env-dev.properties
+src/main/resources/env-prod.properties
 
 ### IDE Specific Files ###
 # Eclipse / STS
@@ -76,5 +77,4 @@ Thumbs.db    # Windows
 uploads/
 logs/
 
-src/main/resources/.env
-src/main/resources/env.properties
+
