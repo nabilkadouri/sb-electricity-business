@@ -25,7 +25,7 @@
 
 
 # Env file
-src/main/resources/env-dev.properties
+src/main/resources/env.properties
 src/main/resources/env-prod.properties
 
 ### IDE Specific Files ###
