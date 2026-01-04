@@ -84,8 +84,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Permettre l'origine de du frontend
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        // Permettre l'origine  du frontend
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "https://electricity-business.nk-dev.fr"));
         // Permettre les méthodes HTTP standard
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         // Permettre tous les en-têtes (crucial pour l'en-tête Authorization du JWT)
