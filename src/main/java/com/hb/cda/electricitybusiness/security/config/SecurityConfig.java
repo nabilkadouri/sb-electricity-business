@@ -53,6 +53,7 @@ public class SecurityConfig {
 
                         // Public : récupération des bornes
                         .requestMatchers(HttpMethod.GET, "/api/charging_stations/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/charging_stations").authenticated()
 
                         // Modifier mot de passe depuis profil → privé
                         .requestMatchers(HttpMethod.PATCH, "/api/account/*/password").authenticated()
