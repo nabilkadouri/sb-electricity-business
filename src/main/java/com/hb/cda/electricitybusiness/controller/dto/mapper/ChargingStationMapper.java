@@ -3,6 +3,7 @@ package com.hb.cda.electricitybusiness.controller.dto.mapper;
 import com.hb.cda.electricitybusiness.controller.dto.ChargingStationBookingDTO;
 import com.hb.cda.electricitybusiness.controller.dto.ChargingStationRequest;
 import com.hb.cda.electricitybusiness.controller.dto.ChargingStationResponse;
+import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
 import org.mapstruct.*;
 
@@ -35,5 +36,22 @@ public interface ChargingStationMapper {
 
 
     ChargingStationBookingDTO toBookingDTO(ChargingStation station);
+
+    @AfterMapping
+    default void ensurePicture(
+            ChargingStation source,
+            @MappingTarget ChargingStationResponse target
+    ) {
+        if (target.getPicture() == null || target.getPicture().getSrc() == null) {
+            target.setPicture(
+                    new PictureDetailsDTO(
+                            "Borne de recharge",
+                            "/images/default_picture_station.png",
+                            true
+                    )
+            );
+        }
+    }
+
 }
 

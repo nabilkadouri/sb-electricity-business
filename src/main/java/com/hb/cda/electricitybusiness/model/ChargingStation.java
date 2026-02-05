@@ -113,4 +113,15 @@ public class ChargingStation {
             }
         }
     }
+    @PostLoad
+    private void ensureDefaultPicture() {
+        if (this.picture == null || this.picture.getSrc() == null) {
+            this.picture = new PictureDetailsDTO(
+                    "Borne de recharge",
+                    "/images/default_picture_station.png",
+                    true
+            );
+        }
+    }
+
 }
