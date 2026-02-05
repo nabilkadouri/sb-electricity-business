@@ -83,14 +83,16 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtUtil.generateToken(userDetails);
         String refreshToken = jwtUtil.generateRefreshToken(userDetails);
 
-        // Créer le cookie pour le refresh token
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(secureCookie);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000));
-
-        response.addCookie(refreshTokenCookie);
+        // Cookie refresh token (compatible navigateur)
+        response.addHeader(
+                "Set-Cookie",
+                "refreshToken=" + refreshToken
+                        + "; Path=/"
+                        + "; HttpOnly"
+                        + "; Secure"
+                        + "; SameSite=None"
+                        + "; Max-Age=" + (jwtUtil.getRefreshExpirationTime() / 1000)
+        );
 
         return new LoginResponse(accessToken);
     }
