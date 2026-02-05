@@ -43,10 +43,8 @@ public class AccountBusinessImpl implements AccountBusiness {
         if(userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException();
         }
-
         String hashed = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashed);
-
         return userRepository.save(user);
     }
 

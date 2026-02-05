@@ -43,11 +43,15 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void processLoginAndSendCode(LoginRequest loginRequest) {
 
-        //Tenter une authentification
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+       // Vérifier les identifiants (email / mot de passe)
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getEmail(),
+                        loginRequest.getPassword()
+                )
         );
 
-        // Récupérer l'utilisateur après une authentification réussie
+        // Récupérer l'utilisateur après validation des identifiants
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé après authentification réussie."));
 

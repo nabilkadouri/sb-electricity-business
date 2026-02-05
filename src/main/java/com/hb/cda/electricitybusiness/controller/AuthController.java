@@ -37,7 +37,6 @@ public class AuthController {
         } catch (AuthenticationException e) {
             return new ResponseEntity<>(new MessageResponse("Identifiants invalides"), HttpStatus.UNAUTHORIZED);
         }
-
     }
 
 
