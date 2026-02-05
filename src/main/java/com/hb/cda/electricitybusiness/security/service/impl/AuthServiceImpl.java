@@ -11,6 +11,7 @@ import com.hb.cda.electricitybusiness.security.jwt.JwtUtil;
 import com.hb.cda.electricitybusiness.security.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,6 +28,8 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
     private MailService mailService;
     private PasswordEncoder passwordEncoder;
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
 
     public AuthServiceImpl(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository, MailService mailService, PasswordEncoder passwordEncoder) {
@@ -121,7 +124,7 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtUtil.generateToken(user);
 
-        String resetLink = "http://localhost:4200/reset-password?token=" + token;
+        String resetLink = frontendUrl + "/reset-password?token=" + token;
 
         mailService.sendResetPassword(user, resetLink);
     }
