@@ -9,10 +9,8 @@ import com.hb.cda.electricitybusiness.model.User;
 import com.hb.cda.electricitybusiness.repository.UserRepository;
 import com.hb.cda.electricitybusiness.security.jwt.JwtUtil;
 import com.hb.cda.electricitybusiness.security.service.AuthService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,8 +27,6 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
     private MailService mailService;
     private PasswordEncoder passwordEncoder;
-    @Value("${app.cookie.secure}")
-    private boolean secureCookie;
 
 
     public AuthServiceImpl(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository, MailService mailService, PasswordEncoder passwordEncoder) {
