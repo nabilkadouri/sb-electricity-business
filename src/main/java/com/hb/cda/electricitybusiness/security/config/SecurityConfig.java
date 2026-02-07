@@ -56,6 +56,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/account/*/password").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/account/*/uploadProfilePicture").authenticated()
 
+                        .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/icons/**").permitAll()
+
+
                         .requestMatchers("/api/bookings/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/bookings/*/status").authenticated()
 
@@ -69,14 +74,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers(
-                "/uploads/**",
-                "/images/**",
-                "/icons/**"
-        );
-    }
 
     @Bean
     PasswordEncoder passwordEncoder() {
