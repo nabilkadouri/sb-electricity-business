@@ -41,16 +41,12 @@ class AccountControllerIntegrationTest {
     @Test
     void registerUser_shouldCreateUser_andReturn201() throws Exception {
 
+        // ARRANGE : préparation du contexte HTTP et des dépendances mockées
         RegisterRequest request = new RegisterRequest(
-                "john.doe@test.com",
-                "Password123!",
-                "Doe",
-                "John",
-                "10 rue de Paris",
-                "75000",
-                "Paris",
-                48.85,
-                2.35,
+                "john.doe@test.com", "Password123!",
+                "Doe", "John",
+                "10 rue de Paris", "75000", "Paris",
+                48.85, 2.35,
                 "0600000000"
         );
 
@@ -62,16 +58,22 @@ class AccountControllerIntegrationTest {
         response.setId(1L);
         response.setEmail("john.doe@test.com");
 
-        when(accountBusiness.registerUser(any())).thenReturn(created);
-        when(userMapper.userToUserResponse(created)).thenReturn(response);
+        when(accountBusiness.registerUser(any()))
+                .thenReturn(created);
+        when(userMapper.userToUserResponse(created))
+                .thenReturn(response);
 
+        // ACT : appel HTTP réel du contrôleur via MockMvc
         mockMvc.perform(post("/api/account/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+
+                // ASSERT : vérification du statut HTTP et de la réponse JSON
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.email").value("john.doe@test.com"))
                 .andExpect(jsonPath("$.id").value(1));
     }
+
 
     @Test
     void getUserById_ShouldReturnUserResponse() throws Exception {

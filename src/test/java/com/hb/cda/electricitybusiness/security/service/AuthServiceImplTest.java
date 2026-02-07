@@ -46,24 +46,34 @@ class AuthServiceImplTest {
 
     @Test
     void processLogin_ShouldGenerateVerificationCode() {
-        LoginRequest request = new LoginRequest("test@mail.com", "password");
+        // ARRANGE : préparation du contexte de test
+        LoginRequest request =
+                new LoginRequest("test@mail.com", "password");
+
         User user = new User();
         user.setEmail("test@mail.com");
+
         Authentication fakeAuth =
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                );
 
-        when(authenticationManager.authenticate(any())).thenReturn(fakeAuth);
+        when(authenticationManager.authenticate(any()))
+                .thenReturn(fakeAuth);
+        when(userRepository.findByEmail(request.getEmail()))
+                .thenReturn(Optional.of(user));
 
-        when(userRepository.findByEmail(request.getEmail())).thenReturn(java.util.Optional.of(user));
-
+        // ACT : appel de la méthode testée
         authService.processLoginAndSendCode(request);
 
+        // ASSERT : vérification du comportement attendu
         assertNotNull(user.getCodeCheck());
-
         verify(userRepository, times(1)).save(user);
-
-        verify(mailService, times(1)).sendVerificationCode(eq("test@mail.com"), anyString());
+        verify(mailService, times(1))
+                .sendVerificationCode(eq("test@mail.com"), anyString());
     }
+
 
     @Test
     void verifyCode_ShouldReturnAccessToken_WhenCodeIsValid() {
