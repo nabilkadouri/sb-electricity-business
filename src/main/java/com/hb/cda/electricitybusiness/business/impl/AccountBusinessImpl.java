@@ -11,13 +11,13 @@ import com.hb.cda.electricitybusiness.repository.UserRepository;
 import com.hb.cda.electricitybusiness.security.jwt.JwtUtil;
 import com.hb.cda.electricitybusiness.service.UploadService;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
+
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -137,26 +137,31 @@ public class AccountBusinessImpl implements AccountBusiness {
 
     @Override
     @Transactional
-    public PictureDetailsDTO uploadProfilePicture(Long id, MultipartFile file, String altText, boolean isMain) {
+    public PictureDetailsDTO uploadProfilePicture(
+            Long id,
+            MultipartFile file,
+            String altText,
+            boolean isMain
+    ) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID " + id));
 
-        // Supprimer l'ancienne photo sauf si c'est l'image par défaut
-        if(user.getProfilePicture() != null
+        // Supprimer l'ancienne image si ce n'est pas l'image par défaut
+        if (user.getProfilePicture() != null
                 && user.getProfilePicture().getSrc() != null
-                && !user.getProfilePicture().getSrc().startsWith("images/default_")) {
-            uploadService.removeExisting(user.getProfilePicture().getSrc());
+                && !user.getProfilePicture().getSrc().startsWith("/images/default_")) {
+
+            String oldSrc = user.getProfilePicture().getSrc();
+            String oldFilename = Paths.get(oldSrc).getFileName().toString();
+            uploadService.removeExisting(oldFilename);
         }
 
         // Upload nouvelle image
         String newFileName = uploadService.uploadImage(file);
 
-        // Construire le bon chemin /uploads/...
-        String finalSrc = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/uploads/")
-                .path(newFileName)
-                .toUriString();
+        // ✅ URL RELATIVE UNIQUEMENT
+        String finalSrc = "/uploads/" + newFileName;
 
         PictureDetailsDTO newPicture = new PictureDetailsDTO(
                 altText != null ? altText : "Photo de profil",
@@ -164,11 +169,11 @@ public class AccountBusinessImpl implements AccountBusiness {
                 isMain
         );
 
-        // 🔥 Mise à jour du user dans la base
         user.setProfilePicture(newPicture);
         userRepository.save(user);
 
         return newPicture;
     }
+
 
 }
