@@ -47,30 +47,23 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/account/register").permitAll()
 
-                        // Password reset public
                         .requestMatchers(HttpMethod.POST, "/api/auth/password/forgot").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/password/reset").permitAll()
 
-                        // Public : récupération des bornes
                         .requestMatchers(HttpMethod.GET, "/api/charging_stations/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/charging_stations").authenticated()
 
-                        // Modifier mot de passe depuis profil → privé
                         .requestMatchers(HttpMethod.PATCH, "/api/account/*/password").authenticated()
-
-                        // Upload image temporaire
-                        .requestMatchers("/api/charging_stations/upload-temp-picture").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        .requestMatchers("/images/**").permitAll()
-                        .requestMatchers("/uploads/**").permitAll()
-                        .requestMatchers("/icons/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/account/*/uploadProfilePicture").authenticated()
 
                         .requestMatchers("/api/bookings/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/bookings/*/status").authenticated()
 
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
+
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
