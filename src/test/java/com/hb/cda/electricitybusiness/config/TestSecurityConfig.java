@@ -29,7 +29,6 @@ public class TestSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Version simplifiée qui utilise la configuration par défaut de Spring Security
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
