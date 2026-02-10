@@ -5,20 +5,18 @@ import com.hb.cda.electricitybusiness.business.impl.BookingBusinessImpl;
 import com.hb.cda.electricitybusiness.controller.dto.BookingRequest;
 import com.hb.cda.electricitybusiness.controller.dto.BookingResponse;
 import com.hb.cda.electricitybusiness.controller.dto.mapper.BookingMapper;
+import com.hb.cda.electricitybusiness.enums.DayOfWeek;
+import com.hb.cda.electricitybusiness.messaging.MailService; // Ajout important
 import com.hb.cda.electricitybusiness.model.Booking;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
 import com.hb.cda.electricitybusiness.model.Timeslot;
 import com.hb.cda.electricitybusiness.model.User;
-import com.hb.cda.electricitybusiness.enums.DayOfWeek;
-
 import com.hb.cda.electricitybusiness.repository.BookingRepository;
 import com.hb.cda.electricitybusiness.repository.ChargingStationRepository;
 import com.hb.cda.electricitybusiness.repository.UserRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList; // Utiliser une liste modifiable
 import java.util.List;
 import java.util.Optional;
 
@@ -35,61 +34,51 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class BookingBusinessImplTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private ChargingStationRepository chargingStationRepository;
-
-    @Mock
-    private BookingRepository bookingRepository;
-
-    @Mock
-    private BookingMapper bookingMapper;
+    @Mock private UserRepository userRepository;
+    @Mock private ChargingStationRepository chargingStationRepository;
+    @Mock private BookingRepository bookingRepository;
+    @Mock private BookingMapper bookingMapper;
+    @Mock private MailService mailService; // CORRECTIF 1 : Mock du service de mail
 
     @InjectMocks
     private BookingBusinessImpl bookingBusiness;
 
     private User user;
     private ChargingStation station;
-    private Timeslot timeslot;
     private BookingRequest request;
 
     @BeforeEach
     void setup() {
-        // --- Mock User ---
         user = new User();
         user.setId(1L);
+        user.setEmail("test@test.com");
 
-        // --- Mock ChargingStation ---
         station = new ChargingStation();
         station.setId(10L);
         station.setIsAvailable(true);
         station.setPricePerHour(BigDecimal.valueOf(5));
+        station.setNameStation("Borne Test");
 
-        // --- Timeslot valide : Lundi 00h → 23h59 ---
-        timeslot = new Timeslot();
-        timeslot.setId(100L);
+        Timeslot timeslot = new Timeslot();
         timeslot.setDayOfWeek(DayOfWeek.MONDAY);
         timeslot.setStartTime(LocalTime.of(0, 0));
         timeslot.setEndTime(LocalTime.of(23, 59));
 
         station.setTimeslots(List.of(timeslot));
-        station.setBookings(List.of());
+        station.setBookings(new ArrayList<>());
 
-        // --- BookingRequest ---
         request = new BookingRequest();
         request.setUserId(1L);
         request.setChargingStationId(10L);
-        request.setStartDate(LocalDateTime.of(2025, 1, 20, 10, 0)); // Lundi
+        request.setStartDate(LocalDateTime.of(2025, 1, 20, 10, 0)); // Un lundi
         request.setEndDate(LocalDateTime.of(2025, 1, 20, 12, 0));
     }
 
-    // TEST 1 : Réservation valide
     @Test
     void createBooking_ShouldCreate_WhenDataIsValid() {
-
         Booking entity = new Booking();
+        entity.setUser(user);
+        entity.setChargingStation(station);
         entity.setStartDate(request.getStartDate());
         entity.setEndDate(request.getEndDate());
 
@@ -105,12 +94,11 @@ class BookingBusinessImplTest {
 
         assertNotNull(response);
         verify(bookingRepository, times(1)).save(any());
+        verify(mailService, atLeastOnce()).sendReservationCreatedEmail(any(), any(), any(), any(), any());
     }
 
-    // TEST 2 : Chevauchement de réservation
     @Test
     void createBooking_ShouldThrow_WhenOverlappingExists() {
-
         Booking existingBooking = new Booking();
         existingBooking.setStartDate(LocalDateTime.of(2025, 1, 20, 11, 0));
         existingBooking.setEndDate(LocalDateTime.of(2025, 1, 20, 13, 0));
@@ -120,11 +108,10 @@ class BookingBusinessImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(chargingStationRepository.findById(10L)).thenReturn(Optional.of(station));
 
-        BusinessException ex = assertThrows(
-                BusinessException.class,
-                () -> bookingBusiness.createBooking(request)
-        );
+        BusinessException ex = assertThrows(BusinessException.class, () -> {
+            bookingBusiness.createBooking(request);
+        });
 
-        assertTrue(ex.getMessage().contains("déjà réservée"));
+        assertTrue(ex.getMessage().contains("déjà réservé"));
     }
 }

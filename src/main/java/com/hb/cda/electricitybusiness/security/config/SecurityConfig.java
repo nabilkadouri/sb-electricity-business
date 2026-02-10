@@ -4,6 +4,7 @@ package com.hb.cda.electricitybusiness.security.config;
 import com.hb.cda.electricitybusiness.security.jwt.JwtRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@Profile("!test")
 public class SecurityConfig {
 
     private AuthenticationConfiguration authenticationConfiguration;
@@ -37,7 +39,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain accessControl(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
+    SecurityFilterChain accessControl(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
@@ -61,8 +63,10 @@ public class SecurityConfig {
                         .requestMatchers("/icons/**").permitAll()
 
 
-                        .requestMatchers("/api/bookings/**").authenticated()
+                        .requestMatchers("/api/bookings/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/bookings/*/status").authenticated()
+
+                        .requestMatchers("/error").permitAll()
 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 

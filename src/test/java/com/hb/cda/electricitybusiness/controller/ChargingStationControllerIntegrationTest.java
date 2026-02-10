@@ -1,6 +1,7 @@
 package com.hb.cda.electricitybusiness.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hb.cda.electricitybusiness.config.TestSecurityConfig;
 import com.hb.cda.electricitybusiness.controller.dto.ChargingStationRequest;
 import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.enums.ChargingStationStatus;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -31,13 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
-@TestPropertySource(properties = {
-        "spring.mail.host=dummy",
-        "spring.mail.port=1025",
-        "jwt.secret=test-secret",
-        "jwt.expiration=3600000",
-        "jwt.refresh.expiration=7200000"
-})
+@Import(TestSecurityConfig.class)
+@Transactional
 class ChargingStationControllerIntegrationTest {
 
     @Autowired private MockMvc mockMvc;
@@ -55,6 +52,7 @@ class ChargingStationControllerIntegrationTest {
     private User savedUser;
 
     @BeforeEach
+    @Transactional
     void setup() {
 
         bookingRepository.deleteAll();

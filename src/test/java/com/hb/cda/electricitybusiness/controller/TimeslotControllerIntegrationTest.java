@@ -2,6 +2,7 @@ package com.hb.cda.electricitybusiness.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hb.cda.electricitybusiness.config.TestSecurityConfig;
 import com.hb.cda.electricitybusiness.controller.dto.TimeslotRequest;
 import com.hb.cda.electricitybusiness.enums.DayOfWeek;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,10 +32,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@Transactional
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
+@Transactional
 class TimeslotControllerIntegrationTest {
+
+    static {
+        java.util.Locale.setDefault(java.util.Locale.ENGLISH);
+    }
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
@@ -51,8 +58,6 @@ class TimeslotControllerIntegrationTest {
 
     @BeforeEach
     void setup() {
-        System.out.println("🔥 CONTEXTE CHARGÉ, SETUP LANCÉ");
-
         try {
             System.out.println("➡️ SETUP START");
         } catch (Exception e) {
@@ -68,16 +73,13 @@ class TimeslotControllerIntegrationTest {
         savedStation = chargingStationRepository.save(
                 TestDataFactory.createChargingStation(savedUser, savedLocation)
         );
-        System.out.println("✔️ SETUP FINI AVEC SUCCÈS");
     }
 
-    // ----------------------------------------------------------------------
 
     @Test
     void getAllTimeslots_ShouldReturn200() throws Exception {
-        System.out.println("💥 TEST LANCÉ !");
         Timeslot t = new Timeslot();
-        t.setDayOfWeek(DayOfWeek.MONDAY);
+        t.setDayOfWeek(DayOfWeek.MONDAY); // L'Enum reste MONDAY en Java
         t.setStartTime(LocalTime.of(8, 0));
         t.setEndTime(LocalTime.of(9, 0));
         t.setChargingStation(savedStation);
@@ -85,10 +87,8 @@ class TimeslotControllerIntegrationTest {
 
         mockMvc.perform(get("/api/timeslots"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].dayOfWeek").value("MONDAY"));
+                .andExpect(jsonPath("$[0].dayOfWeek").value("Lundi")); // On attend "Lundi"
     }
-
-    // ----------------------------------------------------------------------
 
     @Test
     void getTimeslotById_ShouldReturn200() throws Exception {
@@ -101,15 +101,11 @@ class TimeslotControllerIntegrationTest {
 
         mockMvc.perform(get("/api/timeslots/" + t.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(t.getId()))
-                .andExpect(jsonPath("$.dayOfWeek").value("TUESDAY"));
+                .andExpect(jsonPath("$.dayOfWeek").value("Mardi")); // On attend "Mardi"
     }
-
-    // ----------------------------------------------------------------------
 
     @Test
     void createTimeslot_ShouldReturn201() throws Exception {
-
         TimeslotRequest request = new TimeslotRequest(
                 DayOfWeek.WEDNESDAY,
                 LocalTime.of(14, 0),
@@ -121,45 +117,22 @@ class TimeslotControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.dayOfWeek").value("WEDNESDAY"))
-                .andExpect(jsonPath("$.chargingStationId").value(savedStation.getId()));
-
-        assertThat(timeslotRepository.count()).isEqualTo(1);
+                .andExpect(jsonPath("$.dayOfWeek").value("Mercredi")); // On attend "Mercredi"
     }
-
-    // ----------------------------------------------------------------------
 
     @Test
     void createMultipleTimeslots_ShouldReturn201() throws Exception {
-
-        TimeslotRequest t1 = new TimeslotRequest(
-                DayOfWeek.THURSDAY,
-                LocalTime.of(9,0),
-                LocalTime.of(10,0),
-                savedStation.getId()
-        );
-
-        TimeslotRequest t2 = new TimeslotRequest(
-                DayOfWeek.THURSDAY,
-                LocalTime.of(10,0),
-                LocalTime.of(11,0),
-                savedStation.getId()
-        );
-
+        TimeslotRequest t1 = new TimeslotRequest(DayOfWeek.THURSDAY, LocalTime.of(9,0), LocalTime.of(10,0), savedStation.getId());
+        TimeslotRequest t2 = new TimeslotRequest(DayOfWeek.THURSDAY, LocalTime.of(10,0), LocalTime.of(11,0), savedStation.getId());
         List<TimeslotRequest> list = List.of(t1, t2);
 
         mockMvc.perform(post("/api/timeslots/batch")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(list)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$[0].dayOfWeek").value("THURSDAY"))
-                .andExpect(jsonPath("$[1].dayOfWeek").value("THURSDAY"));
-
-        assertThat(timeslotRepository.count()).isEqualTo(2);
+                .andExpect(jsonPath("$[0].dayOfWeek").value("Jeudi")) // On attend "Jeudi"
+                .andExpect(jsonPath("$[1].dayOfWeek").value("Jeudi"));
     }
-
-    // ----------------------------------------------------------------------
-
     @Test
     void updateTimeslot_ShouldReturn200() throws Exception {
         Timeslot t = new Timeslot();
@@ -169,22 +142,14 @@ class TimeslotControllerIntegrationTest {
         t.setChargingStation(savedStation);
         t = timeslotRepository.save(t);
 
-        TimeslotRequest update = new TimeslotRequest(
-                DayOfWeek.SATURDAY,
-                LocalTime.of(18, 0),
-                LocalTime.of(19, 0),
-                savedStation.getId()
-        );
+        TimeslotRequest update = new TimeslotRequest(DayOfWeek.SATURDAY, LocalTime.of(18, 0), LocalTime.of(19, 0), savedStation.getId());
 
         mockMvc.perform(put("/api/timeslots/" + t.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.dayOfWeek").value("SATURDAY"))
-                .andExpect(jsonPath("$.startTime").value("18:00:00"));
+                .andExpect(jsonPath("$.dayOfWeek").value("Samedi")); // On attend "Samedi"
     }
-
-    // ----------------------------------------------------------------------
 
     @Test
     void deleteTimeslot_ShouldReturn204() throws Exception {

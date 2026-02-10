@@ -12,9 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -25,6 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(LocationStationController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
+
 class LocationStationControllerIntegrationTest {
 
     @Autowired
@@ -33,20 +36,12 @@ class LocationStationControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
-    private LocationStationBusiness locationStationBusiness;
-
-    @MockBean
-    private LocationStationMapper locationStationMapper;
-
-    @MockBean private JwtUtil jwtUtil;
-    @MockBean private JwtRequestFilter jwtRequestFilter;
+    @MockitoBean private LocationStationBusiness locationStationBusiness;
+    @MockitoBean private LocationStationMapper locationStationMapper;
+    @MockitoBean private JwtUtil jwtUtil;
+    @MockitoBean private JwtRequestFilter jwtRequestFilter;
 
 
-
-    // ============================================================
-    // TEST CREATE
-    // ============================================================
     @Test
     void createLocationStation_ShouldReturn201() throws Exception {
 
@@ -81,11 +76,6 @@ class LocationStationControllerIntegrationTest {
                 .andExpect(jsonPath("$.city").value("Paris"));
     }
 
-
-
-    // ============================================================
-    // TEST GET ALL
-    // ============================================================
     @Test
     void getAllLocationStation_ShouldReturnList() throws Exception {
 
@@ -107,11 +97,6 @@ class LocationStationControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].city").value("Paris"));
     }
 
-
-
-    // ============================================================
-    // TEST GET BY ID
-    // ============================================================
     @Test
     void getLocationStationById_ShouldReturn200() throws Exception {
 
@@ -132,11 +117,6 @@ class LocationStationControllerIntegrationTest {
                 .andExpect(jsonPath("$.city").value("Paris"));
     }
 
-
-
-    // ============================================================
-    // TEST UPDATE
-    // ============================================================
     @Test
     void updateLocationStation_ShouldReturn200() throws Exception {
 
@@ -167,11 +147,6 @@ class LocationStationControllerIntegrationTest {
                 .andExpect(jsonPath("$.locationName").value("Updated Name"));
     }
 
-
-
-    // ============================================================
-    // TEST DELETE
-    // ============================================================
     @Test
     void deleteLocationStation_ShouldReturn204() throws Exception {
 
