@@ -22,7 +22,7 @@ jobs:
           DB_USERNAME: sa
           DB_PASSWORD: ""
           JPA_DDL: update
-          JWT_SECRET: "une_cle_secrete_tres_longue_pour_les_tests_github_actions"
+          JWT_SECRET: "YXplcnR5dWlvcHFzZGZnaGpsa213eGN2Ym4xMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTA="
           JWT_EXPIRATION: 3600000
           JWT_REFRESH_EXPIRATION: 86400000
           MAIL_HOST: localhost
