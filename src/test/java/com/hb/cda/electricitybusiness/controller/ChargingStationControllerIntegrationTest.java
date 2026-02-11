@@ -1,7 +1,6 @@
 package com.hb.cda.electricitybusiness.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hb.cda.electricitybusiness.config.TestSecurityConfig;
 import com.hb.cda.electricitybusiness.controller.dto.ChargingStationRequest;
 import com.hb.cda.electricitybusiness.controller.dto.PictureDetailsDTO;
 import com.hb.cda.electricitybusiness.enums.ChargingStationStatus;
@@ -18,10 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -32,8 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-@ActiveProfiles("test")
-@Import(TestSecurityConfig.class)
 @Transactional
 class ChargingStationControllerIntegrationTest {
 

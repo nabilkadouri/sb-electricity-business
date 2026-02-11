@@ -2,7 +2,6 @@ package com.hb.cda.electricitybusiness.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hb.cda.electricitybusiness.business.AccountBusiness;
-import com.hb.cda.electricitybusiness.config.TestSecurityConfig;
 import com.hb.cda.electricitybusiness.controller.dto.RegisterRequest;
 import com.hb.cda.electricitybusiness.controller.dto.UserResponse;
 import com.hb.cda.electricitybusiness.controller.dto.mapper.UserMapper;
@@ -17,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -27,8 +25,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@ActiveProfiles("test")
-@Import(TestSecurityConfig.class)
 @AutoConfigureMockMvc(addFilters = false)
 class AccountControllerIntegrationTest {
 
