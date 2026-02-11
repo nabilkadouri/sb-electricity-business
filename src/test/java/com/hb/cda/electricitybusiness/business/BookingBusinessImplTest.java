@@ -6,7 +6,7 @@ import com.hb.cda.electricitybusiness.controller.dto.BookingRequest;
 import com.hb.cda.electricitybusiness.controller.dto.BookingResponse;
 import com.hb.cda.electricitybusiness.controller.dto.mapper.BookingMapper;
 import com.hb.cda.electricitybusiness.enums.DayOfWeek;
-import com.hb.cda.electricitybusiness.messaging.MailService; // Ajout important
+import com.hb.cda.electricitybusiness.messaging.MailService;
 import com.hb.cda.electricitybusiness.model.Booking;
 import com.hb.cda.electricitybusiness.model.ChargingStation;
 import com.hb.cda.electricitybusiness.model.Timeslot;
@@ -38,7 +38,7 @@ class BookingBusinessImplTest {
     @Mock private ChargingStationRepository chargingStationRepository;
     @Mock private BookingRepository bookingRepository;
     @Mock private BookingMapper bookingMapper;
-    @Mock private MailService mailService; // CORRECTIF 1 : Mock du service de mail
+    @Mock private MailService mailService;
 
     @InjectMocks
     private BookingBusinessImpl bookingBusiness;

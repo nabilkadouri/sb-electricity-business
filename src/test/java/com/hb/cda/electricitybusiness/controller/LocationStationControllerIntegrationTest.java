@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(LocationStationController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class LocationStationControllerIntegrationTest {
 
     @Autowired

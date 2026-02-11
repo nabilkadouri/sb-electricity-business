@@ -5,6 +5,7 @@ import com.hb.cda.electricitybusiness.controller.dto.BookingRequest;
 import com.hb.cda.electricitybusiness.enums.ChargingStationStatus;
 import com.hb.cda.electricitybusiness.enums.DayOfWeek;
 import com.hb.cda.electricitybusiness.enums.PaymentMethod;
+import com.hb.cda.electricitybusiness.messaging.MailService;
 import com.hb.cda.electricitybusiness.model.*;
 import com.hb.cda.electricitybusiness.repository.*;
 import com.hb.cda.electricitybusiness.security.jwt.JwtUtil;
@@ -15,6 +16,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -26,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class BookingControllerIntegrationTest {
 
@@ -57,6 +61,9 @@ public class BookingControllerIntegrationTest {
     private User renter;
     private ChargingStation station;
     private String renterToken;
+
+    @MockitoBean
+    private MailService mailService;
 
     @BeforeEach
     void setUp() {

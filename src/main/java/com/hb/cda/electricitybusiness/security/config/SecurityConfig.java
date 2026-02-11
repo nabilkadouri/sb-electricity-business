@@ -22,7 +22,6 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@Profile("!test")
 public class SecurityConfig {
 
     private AuthenticationConfiguration authenticationConfiguration;
