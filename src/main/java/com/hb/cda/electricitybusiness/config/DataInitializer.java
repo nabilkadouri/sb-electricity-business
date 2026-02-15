@@ -1,9 +1,7 @@
 package com.hb.cda.electricitybusiness.config;
 
-import com.hb.cda.electricitybusiness.enums.BookingStatus;
 import com.hb.cda.electricitybusiness.enums.ChargingStationStatus;
 import com.hb.cda.electricitybusiness.enums.DayOfWeek;
-import com.hb.cda.electricitybusiness.enums.PaymentMethod;
 import com.hb.cda.electricitybusiness.model.*;
 import com.hb.cda.electricitybusiness.repository.*;
 import jakarta.transaction.Transactional;
@@ -17,135 +15,137 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Component
-@Profile("!test")
+@Profile("dev") // Seeder uniquement en développement
 public class DataInitializer implements CommandLineRunner {
+
     private final UserRepository userRepository;
     private final LocationStationRepository locationStationRepository;
     private final ChargingStationRepository chargingStationRepository;
     private final TimeslotRepository timeslotRepository;
-    private final BookingRepository bookingRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(UserRepository userRepository, LocationStationRepository locationStationRepository, ChargingStationRepository chargingStationRepository, TimeslotRepository timeslotRepository, BookingRepository bookingRepository, PasswordEncoder passwordEncoder) {
+    public DataInitializer(UserRepository userRepository,
+                           LocationStationRepository locationStationRepository,
+                           ChargingStationRepository chargingStationRepository,
+                           TimeslotRepository timeslotRepository,
+                           PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.locationStationRepository = locationStationRepository;
         this.chargingStationRepository = chargingStationRepository;
         this.timeslotRepository = timeslotRepository;
-        this.bookingRepository = bookingRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     @Transactional
-    public void run(String... args) throws Exception {
-        if (userRepository.count() > 0) {
-            System.out.println("La base de donnée dispose déja de données.");
+    public void run(String... args) {
+
+        if (chargingStationRepository.count() > 0) {
+            System.out.println("Fixtures déjà présentes.");
             return;
         }
 
-        System.out.println("Initialisation des données de fixture...");
+        System.out.println("Initialisation des 20 bornes autour de Saint-Priest...");
 
-        //Fixture pour l'ajout de users
-        User user1 = new User();
-        user1.setEmail("user1@test.com");
-        user1.setPassword(passwordEncoder.encode("password123"));
-        user1.setFirstName("Jean");
-        user1.setName("Dupont");
-        user1.setOwnsStation(false);
-        user1.setPhoneNumber("0612345678");
-        user1.setAddress("123 Rue de la Gare");
-        user1.setPostaleCode("75019");
-        user1.setCity("Paris");
-        userRepository.save(user1);
+        // Création propriétaires
+        User owner1 = createOwner("owner1@test.com", "Paul", "Martin");
+        User owner2 = createOwner("owner2@test.com", "Sophie", "Durand");
+        User owner3 = createOwner("owner3@test.com", "Lucas", "Bernard");
 
-        User user2 = new User();
-        user2.setEmail("owner1@test.com");
-        user2.setPassword(passwordEncoder.encode("password123"));
-        user2.setFirstName("Marie");
-        user2.setName("Curie");
-        user2.setOwnsStation(true);
-        user2.setPhoneNumber("0698765432");
-        user2.setAddress("456 Avenue des Champs");
-        user2.setPostaleCode("69001");
-        user2.setCity("Lyon");
-        userRepository.save(user2);
+        // SAINT-PRIEST
+        createStation(owner1,"Borne Saint-Priest Centre","Place Roger Salengro","Saint-Priest","69800",45.6958,4.9426);
+        createStation(owner1,"Borne Jean Jaurès","Avenue Jean Jaurès","Saint-Priest","69800",45.7002,4.9475);
+        createStation(owner1,"Borne Herriot","Boulevard Edouard Herriot","Saint-Priest","69800",45.6941,4.9368);
+        createStation(owner1,"Borne Rue du Lyonnais","Rue du Lyonnais","Saint-Priest","69800",45.6995,4.9542);
 
-        //Fixture pour l'ajout de bornes
-        //LocationStation
-        LocationStation location1 = new LocationStation();
-        location1.setLocationName("Place de la Mairie");
-        location1.setAddress("1 Rue de la Mairie");
-        location1.setCity("Paris");
-        location1.setPostaleCode("75001");
-        location1.setLatitude(48.8566);
-        location1.setLongitude(2.3522);
-        locationStationRepository.save(location1);
+        // BRON
+        createStation(owner2,"Borne Bron Roosevelt","Avenue Franklin Roosevelt","Bron","69500",45.7332,4.9155);
+        createStation(owner2,"Borne Bron Terray","Rue Lionel Terray","Bron","69500",45.7321,4.9059);
 
-        LocationStation location2 = new LocationStation();
-        location2.setLocationName("Gare Part-Dieu");
-        location2.setAddress("1 Place de la Gare");
-        location2.setCity("Lyon");
-        location2.setPostaleCode("69003");
-        location2.setLatitude(45.7597);
-        location2.setLongitude(4.8424);
-        locationStationRepository.save(location2);
+        // VENISSIEUX
+        createStation(owner2,"Borne Vénissieux Croizat","Boulevard Ambroise Croizat","Vénissieux","69200",45.6965,4.8844);
+        createStation(owner2,"Borne Vénissieux Houël","Rue Marcel Houël","Vénissieux","69200",45.6991,4.8892);
 
-        //ChargingStation
-        ChargingStation station1 = new ChargingStation();
-        station1.setNameStation("Borne de Test 1");
-        station1.setDescription("Station rapide type 1");
-        station1.setPower(BigDecimal.valueOf(22.0));
-        station1.setPricePerHour(BigDecimal.valueOf(6.00));
-        station1.setStatus(ChargingStationStatus.PENDING);
-        station1.setIsAvailable(true);
-        station1.setPlugType("TYPE2");
-        station1.setCreatedAt(LocalDateTime.now());
-        station1.setLocationStation(location1);
-        station1.setUser(user2);
-        chargingStationRepository.save(station1);
+        // MEYZIEU
+        createStation(owner3,"Borne Meyzieu Verdun","Avenue de Verdun","Meyzieu","69330",45.7673,5.0025);
+        createStation(owner3,"Borne Meyzieu République","Rue de la République","Meyzieu","69330",45.7661,4.9998);
 
-        ChargingStation station2 = new ChargingStation();
-        station2.setNameStation("Borne de Test 2");
-        station2.setDescription("Station standard");
-        station2.setPower(BigDecimal.valueOf(7.4));
-        station2.setPricePerHour(BigDecimal.valueOf(3.50));
-        station2.setStatus(ChargingStationStatus.PENDING);
-        station2.setIsAvailable(true);
-        station2.setPlugType("TYPE2");
-        station2.setCreatedAt(LocalDateTime.now());
-        station2.setLocationStation(location2);
-        station2.setUser(user2);
-        chargingStationRepository.save(station2);
+        // GENAS
+        createStation(owner3,"Borne Genas République","Rue de la République","Genas","69740",45.7324,5.0014);
+        createStation(owner3,"Borne Genas Route Lyon","Route de Lyon","Genas","69740",45.7282,4.9930);
 
-        //Timeslots
-        Timeslot timeslot1 = new Timeslot();
-        timeslot1.setDayOfWeek(DayOfWeek.MONDAY);
-        timeslot1.setStartTime(LocalTime.now().withHour(9).withMinute(0).withSecond(0));
-        timeslot1.setEndTime(LocalTime.now().withHour(10).withMinute(0).withSecond(0));
-        timeslot1.setChargingStation(station1);
-        timeslotRepository.save(timeslot1);
+        // CORBAS
+        createStation(owner1,"Borne Corbas 8 Mai","Avenue du 8 Mai 1945","Corbas","69960",45.6674,4.9028);
+        createStation(owner1,"Borne Corbas Centrale","Rue Centrale","Corbas","69960",45.6662,4.9035);
 
-        Timeslot timeslot2 = new Timeslot();
-        timeslot2.setDayOfWeek(DayOfWeek.MONDAY);
-        timeslot2.setStartTime(LocalTime.now().withHour(10).withMinute(0).withSecond(0));
-        timeslot2.setEndTime(LocalTime.now().withHour(11).withMinute(0).withSecond(0));
-        timeslot2.setChargingStation(station1);
-        timeslotRepository.save(timeslot2);
+        // DECINES
+        createStation(owner2,"Borne Décines Jaurès","Avenue Jean Jaurès","Décines","69150",45.7688,4.9594);
+        createStation(owner2,"Borne Décines Zola","Rue Emile Zola","Décines","69150",45.7711,4.9578);
 
-        //Fixture pour une reservation de borne
-        Booking booking1 = new Booking();
-        booking1.setCreatedAt(LocalDateTime.now());
-        booking1.setStartDate(LocalDateTime.now().plusDays(1).withHour(14));
-        booking1.setEndDate(LocalDateTime.now().plusDays(1).withHour(15));
-        booking1.setTotalAmount(BigDecimal.valueOf(6.00));
-        booking1.setStatus(BookingStatus.PENDING);
-        booking1.setUser(user1);
-        booking1.setChargingStation(station1);
-        booking1.setPaymentType(PaymentMethod.PAYPAL);
-        bookingRepository.save(booking1);
+        // CHASSIEU
+        createStation(owner3,"Borne Chassieu Lyon","Route de Lyon","Chassieu","69680",45.7442,4.9755);
 
-        System.out.println("Data initialization complete.");
+        // MIONS
+        createStation(owner1,"Borne Mions 23 Août","Rue du 23 Août 1944","Mions","69780",45.6621,4.9562);
+
+        // VILLEURBANNE
+        createStation(owner2,"Borne Villeurbanne Zola","Cours Emile Zola","Villeurbanne","69100",45.7705,4.8807);
+
+        // LYON 8
+        createStation(owner3,"Borne Lyon Berthelot","Avenue Berthelot","Lyon","69008",45.7359,4.8706);
+
+        System.out.println("20 bornes générées avec succès.");
     }
 
+    private User createOwner(String email, String firstName, String lastName) {
+        User owner = new User();
+        owner.setEmail(email);
+        owner.setPassword(passwordEncoder.encode("password123"));
+        owner.setFirstName(firstName);
+        owner.setName(lastName);
+        owner.setOwnsStation(true);
+        owner.setPhoneNumber("0600000000");
+        owner.setAddress("Adresse propriétaire");
+        owner.setPostaleCode("69800");
+        owner.setCity("Saint-Priest");
+        return userRepository.save(owner);
+    }
 
+    private void createStation(User owner, String name,
+                               String address, String city,
+                               String postalCode,
+                               double lat, double lng) {
+
+        LocationStation location = new LocationStation();
+        location.setLocationName(name);
+        location.setAddress(address);
+        location.setCity(city);
+        location.setPostaleCode(postalCode);
+        location.setLatitude(lat);
+        location.setLongitude(lng);
+
+        locationStationRepository.save(location);
+
+        ChargingStation station = new ChargingStation();
+        station.setNameStation(name);
+        station.setDescription("Station électrique autour de Saint-Priest");
+        station.setPower(BigDecimal.valueOf(22));
+        station.setPricePerHour(BigDecimal.valueOf(4.5));
+        station.setStatus(ChargingStationStatus.CONFIRMED);
+        station.setIsAvailable(true);
+        station.setPlugType("TYPE2");
+        station.setCreatedAt(LocalDateTime.now());
+        station.setLocationStation(location);
+        station.setUser(owner);
+
+        chargingStationRepository.save(station);
+
+        Timeslot timeslot = new Timeslot();
+        timeslot.setDayOfWeek(DayOfWeek.MONDAY);
+        timeslot.setStartTime(LocalTime.of(8, 0));
+        timeslot.setEndTime(LocalTime.of(18, 0));
+        timeslot.setChargingStation(station);
+
+        timeslotRepository.save(timeslot);
+    }
 }
